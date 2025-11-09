@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="splash_gradient_start">#3A1C71</color>
+    <color name="splash_gradient_end">#4A3F9D</color>
+    <color name="splash_text_primary">#A9C9FF</color>
+    <color name="splash_text_secondary">#D6E4FF</color>
+
+    <color name="login_button_purple">#6C3AE8</color>
+    <color name="login_text_primary">#333333</color>
+    <color name="login_text_secondary">#8A8A8A</color>
+    <color name="login_hint_text">#B0B0B0</color>
+    <color name="login_edittext_border">#E0E0E0</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="home_background">#F7F8FA</color>
+    <color name="home_text_primary">#333333</color>
+    <color name="home_text_secondary">#8A8A8A</color>
+    <color name="home_card_background">#FFFFFF</color>
+    <color name="home_banner_purple_light">#EAE2FE</color>
+    <color name="home_banner_purple_dark">#6C3AE8</color>
+    <color name="home_bottom_nav_background">#FFFFFF</color>
+    <color name="home_bottom_nav_selected">#6C3AE8</color>
+    <color name="home_bottom_nav_unselected">#AEAEAE</color>
+    <color name="manage_account_background">#F5F5F5</color>
+    <color name="manage_account_card_background">#FFFFFF</color>
+    <color name="manage_account_text_primary">#2D2D2D</color>
+    <color name="manage_account_text_secondary">#757575</color>
+    <color name="manage_account_button">#6C63FF</color>
+    <color name="manage_account_button_text">#FFFFFF</color>
+    <color name="manage_account_icon_tint">#2D2D2D</color>
+
+    <color name="chip_selected_background">#6C3AE8</color>
+    <color name="chip_selected_text">#FFFFFF</color>
+    <color name="chip_unselected_background">#FFFFFF</color>
+    <color name="chip_unselected_text">#6C3AE8</color>
+    <color name="chip_unselected_border">#E0E0E0</color>
+    <color name="search_bar_background">#FFFFFF</color>
+    <color name="list_item_card_background">#FFFFFF</color>
+    <color name="settings_background">#F7F8FA</color>
+    <color name="settings_list_item_bg">#FFFFFF</color>
+    <color name="settings_list_item_border">#E0E0E0</color>
+    <color name="settings_text_secondary">#8A8A8A</color>
+    <color name="settings_toggle_thumb">#FFFFFF</color>
+    <color name="settings_toggle_track">#6C3AE8</color>
+</resources>
