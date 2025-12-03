@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_background"
-    tools:context=".HabitListActivity">
+    tools:context=".HabitListActivity"
+    android:id="@+id/main">
 
     <ImageView
         android:id="@+id/iv_back_arrow"
@@ -14,7 +15,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:padding="8dp"
-        android:src="@drawable/ic_arrow_back_24"
+        android:src="@drawable/ic_arrow_back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/home_text_primary" />

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".LoginActivity">
+    tools:context=".LoginActivity"
+    android:id="@+id/main">
 
     <View
         android:id="@+id/view_header_background"
@@ -120,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@id/iv_password_toggle"
                     android:background="@null"
-                    android:drawableStart="@drawable/ic_lock_24"
+                    android:drawableStart="@drawable/ic_lock"
                     android:drawablePadding="12dp"
                     android:drawableTint="@color/login_hint_text"
                     android:hint="@string/login_password_hint"
@@ -135,7 +136,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:padding="16dp"
-                    android:src="@drawable/ic_visibility_off_24"
+                    android:src="@drawable/ic_visibility_off"
                     app:tint="@color/login_hint_text" />
 
             </RelativeLayout>

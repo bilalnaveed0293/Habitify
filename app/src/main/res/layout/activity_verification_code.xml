@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".VerificationCodeActivity"
+    android:id="@+id/main">
+
+    <View
+        android:id="@+id/view_header_background"
+        android:layout_width="0dp"
+        android:layout_height="280dp"
+        android:background="@drawable/splash_background_gradient"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_back_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_arrow_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/white" />
+
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="70dp"
+        android:src="@drawable/ic_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/shape_login_card_background"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_logo">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tv_verification_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enter Verification Code"
+                android:textColor="@color/login_text_primary"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_email_display"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Code sent to: email@example.com"
+                android:textColor="@color/login_text_secondary"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_verification_title" />
+
+            <!-- Code Input Container -->
+            <LinearLayout
+                android:id="@+id/ll_code_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_email_display">
+
+                <EditText
+                    android:id="@+id/et_code_1"
+                    android:layout_width="48dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/shape_code_input"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_primary"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/et_code_2"
+                    android:layout_width="48dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/shape_code_input"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_primary"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/et_code_3"
+                    android:layout_width="48dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/shape_code_input"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_primary"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/et_code_4"
+                    android:layout_width="48dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/shape_code_input"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_primary"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/et_code_5"
+                    android:layout_width="48dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/shape_code_input"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_primary"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/et_code_6"
+                    android:layout_width="48dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/shape_code_input"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/login_text_primary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_countdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="05:00"
+                android:textColor="@color/login_button_purple"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_code_container" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_verify_code"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/login_button_purple"
+                android:text="Verify Code"
+                android:textAllCaps="false"
+                android:textSize="18sp"
+                android:enabled="false"
+                app:cornerRadius="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_countdown" />
+
+            <TextView
+                android:id="@+id/tv_resend_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:enabled="false"
+                android:text="Resend Code"
+                android:textColor="#3A3737"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_verify_code" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".SignUpActivity">
+    tools:context=".SignUpActivity"
+    android:id="@+id/main">
 
     <View
         android:id="@+id/view_header_background"
@@ -23,7 +24,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:padding="8dp"
-        android:src="@drawable/ic_arrow_back_24"
+        android:src="@drawable/ic_arrow_back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/white" />
@@ -94,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/shape_edittext_background"
-                android:drawableStart="@drawable/ic_email_24"
+                android:drawableStart="@drawable/ic_mail_24"
                 android:drawablePadding="12dp"
                 android:drawableTint="@color/login_hint_text"
                 android:hint="@string/login_email_hint"
@@ -133,7 +134,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@id/iv_password_toggle"
                     android:background="@null"
-                    android:drawableStart="@drawable/ic_lock_24"
+                    android:drawableStart="@drawable/ic_lock"
                     android:drawablePadding="12dp"
                     android:drawableTint="@color/login_hint_text"
                     android:hint="@string/login_password_hint"
@@ -148,7 +149,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:padding="16dp"
-                    android:src="@drawable/ic_visibility_off_24"
+                    android:src="@drawable/ic_visibility_off"
                     app:tint="@color/login_hint_text" />
 
             </RelativeLayout>
@@ -171,7 +172,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/shape_edittext_background"
-                android:drawableStart="@drawable/ic_person_24"
+                android:drawableStart="@drawable/ic_person"
                 android:drawablePadding="12dp"
                 android:drawableTint="@color/login_hint_text"
                 android:hint="@string/signup_name_hint"

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/settings_background"
-    tools:context=".SettingsActivity">
+    tools:context=".SettingsActivity"
+    android:id="@+id/main">
 
     <ImageView
         android:id="@+id/iv_back_arrow"

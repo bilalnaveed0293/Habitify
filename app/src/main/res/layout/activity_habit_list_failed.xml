@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_background"
-    tools:context=".HabitListFailedActivity">
+    tools:context=".HabitListFailedActivity"
+    android:id="@+id/main">
 
     <ImageView
         android:id="@+id/iv_back_arrow"
@@ -91,7 +92,7 @@
             app:chipBackgroundColor="@color/selector_chip_background"
             app:chipCornerRadius="16dp"
             app:chipStrokeColor="@color/chip_unselected_border"
-            app:chipStrokeWidth="1dssp" />
+            app:chipStrokeWidth="1dp" />
 
     </com.google.android.material.chip.ChipGroup>
 

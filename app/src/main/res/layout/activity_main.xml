@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_background"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:id="@+id/main">
 
     <ImageView
         android:id="@+id/iv_avatar"
@@ -28,7 +29,8 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
         app:layout_constraintStart_toEndOf="@id/iv_avatar"
-        app:layout_constraintTop_toTopOf="@id/iv_avatar" />
+        app:layout_constraintTop_toTopOf="@id/iv_avatar"
+        />
 
     <ImageView
         android:id="@+id/iv_notifications"

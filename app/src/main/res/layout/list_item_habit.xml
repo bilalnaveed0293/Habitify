@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
     android:background="@drawable/shape_home_habit_card"
-    android:padding="20dp">
+    android:padding="20dp"
+    android:id="@+id/main">
 
     <TextView
         android:id="@+id/tv_habit_title"
@@ -27,7 +28,7 @@
         android:textColor="@color/home_text_secondary"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@tv_habit_title" />
+        app:layout_constraintTop_toBottomOf="@id/tv_habit_title" />
 
     <ImageView
         android:id="@+id/iv_habit_illustration"
@@ -52,7 +53,7 @@
         android:id="@+id/iv_arrow_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_chevron_right_24"
+        android:src="@drawable/ic_chevron_right"
         app:layout_constraintBottom_toBottomOf="@id/iv_arrow_bg"
         app:layout_constraintEnd_toEndOf="@id/iv_arrow_bg"
         app:layout_constraintStart_toStartOf="@id/iv_arrow_bg"

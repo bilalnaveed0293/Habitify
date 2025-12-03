@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/manage_account_background"
-    tools:context=".ManageAccountActivity">
+    tools:context=".ManageAccountActivity"
+    android:id="@+id/main">
 
     <!-- Back Arrow -->
     <ImageView
@@ -16,7 +17,6 @@
         android:layout_marginTop="16dp"
         android:padding="8dp"
         android:src="@drawable/ic_arrow_back"
-        android:contentDescription="@string/back_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/manage_account_text_primary" />
@@ -61,7 +61,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_user"
+                android:src="@drawable/ic_avatar_placeholder"
                 android:contentDescription="@string/manage_account_edit_info"
                 app:tint="@color/manage_account_icon_tint" />
 
@@ -83,7 +83,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/chevronright"
-                android:contentDescription="@string/navigate"
                 app:tint="@color/manage_account_text_secondary" />
 
         </RelativeLayout>
@@ -137,7 +136,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/chevronright"
-                android:contentDescription="@string/navigate"
                 app:tint="@color/manage_account_text_secondary" />
 
         </RelativeLayout>

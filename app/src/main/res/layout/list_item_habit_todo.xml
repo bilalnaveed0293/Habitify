@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
     android:background="@drawable/shape_habit_list_item_background"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:id="@+id/main">
 
     <ImageView
         android:id="@+id/iv_habit_icon"
