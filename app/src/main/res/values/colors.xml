@@ -43,4 +43,8 @@
     <color name="settings_text_secondary">#8A8A8A</color>
     <color name="settings_toggle_thumb">#FFFFFF</color>
     <color name="settings_toggle_track">#6C3AE8</color>
+    <!-- Manage Account Colors -->
+    <color name="manage_account_hint">#999999</color>
+    <color name="manage_account_divider">#E0E0E0</color>
+    <color name="manage_account_button_background">#6A5ACD</color>
 </resources>

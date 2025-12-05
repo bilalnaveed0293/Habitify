@@ -8,6 +8,15 @@
     <!-- NOTIFICATION PERMISSIONS -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- CAMERA PERMISSIONS -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" /> <!-- For Android 10 and below -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -51,6 +60,15 @@
             android:exported="false" />
         <activity android:name=".VerificationCodeActivity"
             android:exported="false" />
+        <activity
+            android:name=".EditAccountInformationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Habitify" />
+
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Habitify" />
         <activity
             android:name=".SplashActivity"
             android:exported="true">

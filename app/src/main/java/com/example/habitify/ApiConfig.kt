@@ -5,7 +5,7 @@ object ApiConfig {
     // Change this to your laptop's IP address
     // For emulator: "http://10.0.2.2"
     // For real device on same WiFi: "http://[YOUR_LAPTOP_IP]"
-    private const val BASE_IP = "http://192.168.100.177"
+    const val BASE_IP = "http://192.168.100.177"
     private const val PROJECT_FOLDER = "habitify"
 
     // API Endpoints
@@ -29,6 +29,10 @@ object ApiConfig {
     // Profile Endpoints
      val GET_PROFILE_URL = "${BASE_URL}profile/get.php"
      val UPDATE_PROFILE_URL = "${BASE_URL}profile/update.php"
+    val CHANGE_PASSWORD_URL = "${BASE_URL}profile/change_password.php"
+    val UPLOAD_PROFILE_PICTURE_URL = "${BASE_URL}profile/upload_profile_picture.php"
+
+
 
     // Sync Endpoints
      val SYNC_PUSH_URL = "${BASE_URL}sync/push.php"

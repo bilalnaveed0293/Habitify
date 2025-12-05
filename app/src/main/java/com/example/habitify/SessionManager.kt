@@ -16,6 +16,9 @@ class SessionManager(context: Context) {
         private const val KEY_USER_EMAIL = "userEmail"
         private const val KEY_USER_TOKEN = "userToken"
         private const val KEY_USER_THEME = "userTheme"
+        private const val KEY_USER_PHONE = "userPhone"
+        private const val KEY_PROFILE_PICTURE = "profilePicture" // ADD THIS
+        private const val KEY_PROFILE_PICTURE_URL = "profilePictureUrl" // ADD THIS
     }
 
     init {
@@ -30,7 +33,10 @@ class SessionManager(context: Context) {
         userName: String,
         userEmail: String,
         userToken: String,
-        theme: String = "system"
+        theme: String = "system",
+        phone: String = "",
+        profilePicture: String? = null, // ADD THIS PARAMETER
+        profilePictureUrl: String? = null // ADD THIS PARAMETER
     ) {
         editor.putBoolean(KEY_IS_LOGGED_IN, true)
         editor.putInt(KEY_USER_ID, userId)
@@ -38,6 +44,9 @@ class SessionManager(context: Context) {
         editor.putString(KEY_USER_EMAIL, userEmail)
         editor.putString(KEY_USER_TOKEN, userToken)
         editor.putString(KEY_USER_THEME, theme)
+        editor.putString(KEY_USER_PHONE, phone)
+        editor.putString(KEY_PROFILE_PICTURE, profilePicture) // SAVE
+        editor.putString(KEY_PROFILE_PICTURE_URL, profilePictureUrl) // SAVE
         editor.apply()
     }
 
@@ -49,11 +58,35 @@ class SessionManager(context: Context) {
                 userName = sharedPreferences.getString(KEY_USER_NAME, "") ?: "",
                 userEmail = sharedPreferences.getString(KEY_USER_EMAIL, "") ?: "",
                 userToken = sharedPreferences.getString(KEY_USER_TOKEN, "") ?: "",
-                theme = sharedPreferences.getString(KEY_USER_THEME, "system") ?: "system"
+                theme = sharedPreferences.getString(KEY_USER_THEME, "system") ?: "system",
+                phone = sharedPreferences.getString(KEY_USER_PHONE, "") ?: "",
+                profilePicture = sharedPreferences.getString(KEY_PROFILE_PICTURE, null), // ADD THIS
+                profilePictureUrl = sharedPreferences.getString(KEY_PROFILE_PICTURE_URL, null) // ADD THIS
             )
         } else {
             null
         }
+    }
+
+    // Add these new methods for profile picture
+    fun saveProfilePicture(profilePicture: String?, profilePictureUrl: String?) {
+        editor.putString(KEY_PROFILE_PICTURE, profilePicture)
+        editor.putString(KEY_PROFILE_PICTURE_URL, profilePictureUrl)
+        editor.apply()
+    }
+
+    fun getProfilePicture(): String? {
+        return sharedPreferences.getString(KEY_PROFILE_PICTURE, null)
+    }
+
+    fun getProfilePictureUrl(): String? {
+        return sharedPreferences.getString(KEY_PROFILE_PICTURE_URL, null)
+    }
+
+    fun hasProfilePicture(): Boolean {
+        val picture = sharedPreferences.getString(KEY_PROFILE_PICTURE, null)
+        val url = sharedPreferences.getString(KEY_PROFILE_PICTURE_URL, null)
+        return !picture.isNullOrEmpty() || !url.isNullOrEmpty()
     }
 
     // Check if user is logged in
@@ -81,6 +114,10 @@ class SessionManager(context: Context) {
         return sharedPreferences.getString(KEY_USER_TOKEN, "") ?: ""
     }
 
+    fun getUserPhone(): String {
+        return sharedPreferences.getString(KEY_USER_PHONE, "") ?: ""
+    }
+
     // Clear session (logout)
     fun clearSession() {
         editor.clear()
@@ -103,13 +140,21 @@ class SessionManager(context: Context) {
     fun getTheme(): String {
         return sharedPreferences.getString(KEY_USER_THEME, "system") ?: "system"
     }
+
+    fun updateUserPhone(phone: String) {
+        editor.putString(KEY_USER_PHONE, phone)
+        editor.apply()
+    }
 }
 
-// Data class for user session
+// Update UserSession data class
 data class UserSession(
     val userId: Int,
     val userName: String,
     val userEmail: String,
     val userToken: String,
-    val theme: String
+    val theme: String,
+    val phone: String = "",
+    val profilePicture: String? = null, // ADD THIS
+    val profilePictureUrl: String? = null // ADD THIS
 )

@@ -9,6 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -42,8 +44,6 @@ class MainActivity : AppCompatActivity() {
         // Set up user data
         setupUserData()
 
-        // Set up click listeners
-
         // Set up bottom navigation
         setupBottomNavigation()
 
@@ -67,8 +67,8 @@ class MainActivity : AppCompatActivity() {
         // Update welcome message with user's name
         tvWelcome.text = "Welcome $userName!"
 
-        // You can also load user avatar here if you have it
-        // For now, using the placeholder
+        // Load profile picture
+        ProfilePictureUtils.loadProfilePictureFromSession(this, ivAvatar, sessionManager)
     }
 
     private fun setupBottomNavigation() {
@@ -80,6 +80,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_add -> {
                     navigateToAddHabit()
+                    true
+                }
+                R.id.nav_settings -> {
+                    navigateToSettings()
                     true
                 }
                 else -> false
@@ -102,25 +106,13 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun navigateToHabits() {
-        // TODO: Create HabitsActivity
-        // val intent = Intent(this, HabitsActivity::class.java)
-        // startActivity(intent)
-        showToast("Habits screen coming soon!")
-    }
-
     private fun navigateToAddHabit() {
-        // TODO: Create AddHabitActivity
-        // val intent = Intent(this, AddHabitActivity::class.java)
-        // startActivity(intent)
         showToast("Add habit coming soon!")
     }
 
-    private fun navigateToStatistics() {
-        // TODO: Create StatisticsActivity
-        // val intent = Intent(this, StatisticsActivity::class.java)
-        // startActivity(intent)
-        showToast("Statistics coming soon!")
+    private fun navigateToSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showToast(message: String) {

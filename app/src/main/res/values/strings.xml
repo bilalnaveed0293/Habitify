@@ -78,4 +78,5 @@
     <string name="settings_push_notifications">Push Notifications</string>
     <string name="settings_logout">Logout</string>
     <string name="settings_themes">Themes</string>
+
 </resources>
