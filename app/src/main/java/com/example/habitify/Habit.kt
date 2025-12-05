@@ -17,7 +17,6 @@ data class Habit(
     val category: String, // "todo", "completed", "failed"
     val createdAt: String,
     val createdAtFormatted: String,
-    val todayNotes: String?,
     val todayCompletedAt: String?
 ) {
     // Get icon resource ID based on icon name

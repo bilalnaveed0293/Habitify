@@ -95,6 +95,10 @@ class HabitAdapter(
                     onCompleteClick(habit)
                 }
             }
+            itemView.setOnLongClickListener {
+                onHabitLongClick(habit)
+                true
+            }
         }
     }
 

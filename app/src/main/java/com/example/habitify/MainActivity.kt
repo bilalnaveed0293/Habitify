@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             navigateToLogin()
             return
         }
-
+         refreshUserProfile()
         // Initialize views
         initializeViews()
 
@@ -359,7 +359,6 @@ class MainActivity : AppCompatActivity() {
             category = category,
             createdAt = json.getString("created_at"),
             createdAtFormatted = json.optString("created_at_formatted", ""),
-            todayNotes = json.optString("today_notes", null),
             todayCompletedAt = json.optString("today_completed_at", null)
         )
     }
@@ -417,10 +416,6 @@ class MainActivity : AppCompatActivity() {
         showToast("Clicked: ${habit.title}")
     }
 
-    private fun showHabitOptions(habit: Habit) {
-        // TODO: Implement habit options dialog (mark complete, delete, edit)
-        showToast("Long clicked: ${habit.title}")
-    }
 
     private fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
@@ -527,6 +522,105 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error refreshing profile: ${e.message}")
+            }
+        }
+    }
+    private fun showHabitOptions(habit: Habit) {
+        val options = arrayOf("Mark Complete", "Mark Failed", "Delete Habit", "Cancel")
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(habit.title)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> updateHabitStatus(habit.id, "completed")
+                    1 -> updateHabitStatus(habit.id, "failed")
+                    2 -> showDeleteConfirmation(habit)
+                    3 -> { /* Cancel */ }
+                }
+            }
+            .show()
+    }
+
+    private fun showDeleteConfirmation(habit: Habit) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete Habit")
+            .setMessage("Are you sure you want to delete '${habit.title}'? This action cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteHabit(habit.id)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteHabit(habitId: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val userId = sessionManager.getUserId()
+
+                // Create request body
+                val jsonObject = JSONObject().apply {
+                    put("user_id", userId)
+                    put("habit_id", habitId)
+                }
+
+                Log.d(TAG, "Deleting habit: $habitId")
+                Log.d(TAG, "API URL: ${ApiConfig.DELETE_HABIT_URL}")
+                Log.d(TAG, "Request Body: ${jsonObject.toString()}")
+
+                // Make API call
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(ApiConfig.DELETE_HABIT_URL)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                Log.d(TAG, "Delete Response Code: ${response.code}")
+                Log.d(TAG, "Delete Response Body: $responseBody")
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val success = jsonResponse.getBoolean("success")
+
+                            if (success) {
+                                showToast("Habit deleted successfully!")
+
+                                // Remove the habit from the list and update UI
+                                allHabits = allHabits.filter { it.id != habitId }
+                                filterHabitsByCategory(currentCategory)
+
+                            } else {
+                                val message = jsonResponse.getString("message")
+                                showToast("Error: $message")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "JSON parsing error: ${e.message}", e)
+                            showToast("Failed to delete habit")
+                        }
+                    } else {
+                        showToast("Failed to connect to server")
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Delete habit error: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    showToast("Network error: ${e.message}")
+                }
             }
         }
     }
