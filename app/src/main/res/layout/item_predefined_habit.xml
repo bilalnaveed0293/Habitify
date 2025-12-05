@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/card_habit"
+    android:id="@+id/card_predefined_habit"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
@@ -20,8 +20,8 @@
         <!-- Habit Icon -->
         <ImageView
             android:id="@+id/iv_habit_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/ic_logo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -36,7 +36,7 @@
             android:textColor="@color/primary_text"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_add_habit"
             app:layout_constraintStart_toEndOf="@id/iv_habit_icon"
             app:layout_constraintTop_toTopOf="@id/iv_habit_icon" />
 
@@ -53,53 +53,41 @@
             app:layout_constraintStart_toStartOf="@id/tv_habit_title"
             app:layout_constraintTop_toBottomOf="@id/tv_habit_title" />
 
-        <!-- Streak Count -->
+        <!-- Habit Category -->
         <TextView
-            android:id="@+id/tv_streak_count"
+            android:id="@+id/tv_habit_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="🔥 7 day streak"
+            android:layout_marginTop="8dp"
+            android:text="Category"
             android:textColor="@color/accent_color"
             android:textSize="12sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@id/tv_habit_title"
             app:layout_constraintTop_toBottomOf="@id/tv_habit_description" />
 
-        <!-- Created Date -->
+        <!-- Suggested Count -->
         <TextView
-            android:id="@+id/tv_created_date"
+            android:id="@+id/tv_suggested_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text="Started Jan 1, 2024"
+            android:layout_marginStart="8dp"
+            android:text="0 users"
             android:textColor="@color/tertiary_text"
             android:textSize="12sp"
-            app:layout_constraintBaseline_toBaselineOf="@id/tv_streak_count"
-            app:layout_constraintStart_toEndOf="@id/tv_streak_count" />
+            app:layout_constraintBaseline_toBaselineOf="@id/tv_habit_category"
+            app:layout_constraintStart_toEndOf="@id/tv_habit_category" />
 
-        <!-- Status Icon -->
-        <ImageView
-            android:id="@+id/iv_status_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_radio_button_unchecked"
-            app:layout_constraintBottom_toBottomOf="@id/tv_streak_count"
-            app:layout_constraintEnd_toStartOf="@id/tv_status_text"
-            app:layout_constraintTop_toTopOf="@id/tv_streak_count" />
-
-        <!-- Status Text -->
-        <TextView
-            android:id="@+id/tv_status_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="To Do"
-            android:textColor="@color/habit_todo"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/tv_streak_count"
+        <!-- Add Button -->
+        <View
+            android:id="@+id/btn_add_habit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/ic_add_circle"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_habit_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_streak_count" />
+            app:layout_constraintTop_toTopOf="@id/iv_habit_icon" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

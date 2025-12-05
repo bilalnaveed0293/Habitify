@@ -22,9 +22,12 @@ object ApiConfig {
 
     // Habit Endpoints
      val CREATE_HABIT_URL = "${BASE_URL}habits/create.php"
-     val GET_HABITS_URL = "${BASE_URL}habits/list.php"
      val UPDATE_HABIT_URL = "${BASE_URL}habits/update.php"
      val DELETE_HABIT_URL = "${BASE_URL}habits/delete.php"
+    val GET_PREDEFINED_HABITS_URL = "${BASE_URL}habits/get_predefined_habits.php"
+
+    val GET_USER_HABITS_URL = "${BASE_URL}habits/get_habits.php"
+
 
     // Profile Endpoints
      val GET_PROFILE_URL = "${BASE_URL}profile/get.php"

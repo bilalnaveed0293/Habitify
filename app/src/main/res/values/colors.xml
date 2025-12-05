@@ -47,4 +47,44 @@
     <color name="manage_account_hint">#999999</color>
     <color name="manage_account_divider">#E0E0E0</color>
     <color name="manage_account_button_background">#6A5ACD</color>
+    <!-- Habit Status Colors -->
+    <color name="habit_todo">#FF9800</color>
+    <color name="habit_completed">#4CAF50</color>
+    <color name="habit_failed">#F44336</color>
+    <color name="habit_skipped">#9E9E9E</color>
+
+    <!-- Text Colors -->
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+    <color name="tertiary_text">#BDBDBD</color>
+    <color name="accent_color">#FF4081</color>
+    <color name="divider_color">#E0E0E0</color>
+        <!-- Primary Colors (Material Design) -->
+        <color name="primary_color">#3F51B5</color> <!-- Indigo -->
+        <color name="primary_dark">#303F9F</color>
+        <color name="primary_light">#C5CAE9</color>
+
+
+
+        <!-- Background Colors -->
+        <color name="background_light">#FAFAFA</color>
+        <color name="background_dark">#212121</color>
+
+        <!-- Surface Colors -->
+        <color name="surface_color">#FFFFFF</color>
+
+        <!-- Error Color -->
+        <color name="error_color">#F44336</color>
+
+        <!-- Success Color -->
+        <color name="success_color">#4CAF50</color>
+
+        <!-- Warning Color -->
+        <color name="warning_color">#FF9800</color>
+
+        <!-- Info Color -->
+        <color name="info_color">#2196F3</color>
+
+    <!-- Chip Background -->
+    <color name="chip_background">#F5F5F5</color>
 </resources>
