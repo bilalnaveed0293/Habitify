@@ -246,18 +246,28 @@ class LoginActivity : AppCompatActivity() {
                     val userId = user?.optInt("id") ?: 0
                     val userName = user?.optString("name") ?: "User"
                     val userEmail = user?.optString("email") ?: email
+                    val userPhone = user?.optString("phone") ?: ""
                     val userTheme = user?.optString("theme") ?: "system"
 
-                    // Save user session
+                    // NEW: Get profile picture data
+                    val profilePicture = user?.optString("profile_picture", null)
+                    val profilePictureUrl = user?.optString("profile_picture_url", null)
+
+                    // Save user session WITH PROFILE PICTURE
                     sessionManager.saveUserSession(
                         userId = userId,
                         userName = userName,
                         userEmail = userEmail,
                         userToken = token,
-                        theme = userTheme
+                        theme = userTheme,
+                        phone = userPhone,
+                        profilePicture = profilePicture, // Save profile picture
+                        profilePictureUrl = profilePictureUrl // Save profile picture URL
                     )
 
                     Log.d(TAG, "User session saved: $userName")
+                    Log.d(TAG, "Profile picture saved: $profilePicture")
+                    Log.d(TAG, "Profile picture URL saved: $profilePictureUrl")
                 }
 
                 // Show success message

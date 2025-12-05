@@ -13,7 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 class HabitAdapter(
     private var habits: List<Habit> = emptyList(),
     private val onHabitClick: (Habit) -> Unit = {},
-    private val onHabitLongClick: (Habit) -> Unit = {}
+    private val onHabitLongClick: (Habit) -> Unit = {},
+    private val onCompleteClick: (Habit) -> Unit = {}  // NEW: Add completion callback
 ) : RecyclerView.Adapter<HabitAdapter.HabitViewHolder>() {
 
     inner class HabitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -38,23 +39,35 @@ class HabitAdapter(
             tvCreatedDate.text = "Started ${habit.getFormattedDate()}"
 
             // Set status icon and text
-            ivStatusIcon.setImageResource(habit.getStatusIcon())
-            tvStatusText.text = when (habit.category) {
+            val statusIcon = when (habit.todayStatus.toLowerCase()) {
+                "done", "completed" -> R.drawable.ic_check_circle
+                "failed" -> R.drawable.ic_cancel
+                "skipped" -> R.drawable.ic_pause_circle
+                else -> R.drawable.ic_radio_button_unchecked
+            }
+
+            ivStatusIcon.setImageResource(statusIcon)
+
+            val statusText = when (habit.category) {
                 "completed" -> "Completed"
                 "failed" -> "Failed"
                 else -> "To Do"
             }
 
+            tvStatusText.text = statusText
+
             // Set status color
             val statusColor = ContextCompat.getColor(itemView.context, habit.getStatusColor())
             tvStatusText.setTextColor(statusColor)
 
-            // Set habit color (use color code from habit)
+            // Set habit icon - UPDATED TO USE iconName
+            ivHabitIcon.setImageResource(habit.getIconResource())
+
+            // Set habit color
             try {
                 val habitColor = Color.parseColor(habit.colorCode)
                 ivHabitIcon.setColorFilter(habitColor)
             } catch (e: Exception) {
-                // Use default color if parsing fails
                 ivHabitIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.primary_color))
             }
 
@@ -66,6 +79,21 @@ class HabitAdapter(
             itemView.setOnLongClickListener {
                 onHabitLongClick(habit)
                 true
+            }
+
+            // NEW: Add click listener to status icon for completion
+            ivStatusIcon.setOnClickListener {
+                // Only allow toggling for "To Do" habits
+                if (habit.category == "todo") {
+                    onCompleteClick(habit)
+                }
+            }
+
+            // Also make the whole status area clickable
+            tvStatusText.setOnClickListener {
+                if (habit.category == "todo") {
+                    onCompleteClick(habit)
+                }
             }
         }
     }

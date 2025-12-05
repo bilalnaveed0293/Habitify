@@ -8,7 +8,9 @@ data class PredefinedHabit(
     val iconName: String,
     val colorCode: String,
     val frequency: String,
-    val suggestedCount: Int
+    val suggestedCount: Int,
+    val isCustom: Boolean = false, // NEW: Flag for custom habits
+    val customHabitId: Int? = null // NEW: Original ID for custom habits
 ) {
     fun getIconResource(): Int {
         return when (iconName.toLowerCase()) {

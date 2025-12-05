@@ -10,7 +10,7 @@ data class Habit(
     val description: String?,
     val frequency: String,
     val colorCode: String,
-    val iconName: String,
+    val iconName: String,  // This should store the icon name
     val currentStreak: Int,
     val longestStreak: Int,
     val todayStatus: String,
@@ -20,9 +20,27 @@ data class Habit(
     val todayNotes: String?,
     val todayCompletedAt: String?
 ) {
+    // Get icon resource ID based on icon name
+    fun getIconResource(): Int {
+        return when (iconName.toLowerCase()) {
+            "meditation" -> R.drawable.ic_meditation
+            "water" -> R.drawable.ic_water
+            "exercise" -> R.drawable.ic_exercise
+            "read" -> R.drawable.ic_book
+            "journal" -> R.drawable.ic_journal
+            "learn" -> R.drawable.ic_learn
+            "nosugar" -> R.drawable.ic_no_sugar
+            "sleep" -> R.drawable.ic_sleep
+            "gratitude" -> R.drawable.ic_gratitude
+            "walk" -> R.drawable.ic_walk
+            "default" -> R.drawable.ic_logo
+            else -> R.drawable.ic_logo
+        }
+    }
+
     fun getStatusIcon(): Int {
         return when (todayStatus.toLowerCase()) {
-            "done" -> R.drawable.ic_check_circle
+            "done", "completed" -> R.drawable.ic_check_circle
             "failed" -> R.drawable.ic_cancel
             "skipped" -> R.drawable.ic_pause_circle
             else -> R.drawable.ic_radio_button_unchecked

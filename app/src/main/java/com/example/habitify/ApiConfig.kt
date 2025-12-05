@@ -9,7 +9,7 @@ object ApiConfig {
     private const val PROJECT_FOLDER = "habitify"
 
     // API Endpoints
-    private val BASE_URL = "$BASE_IP/$PROJECT_FOLDER/api/"
+    val BASE_URL = "$BASE_IP/$PROJECT_FOLDER/api/"
 
     // Authentication Endpoints
     val LOGIN_URL = "${BASE_URL}auth/login.php"
@@ -25,8 +25,10 @@ object ApiConfig {
      val UPDATE_HABIT_URL = "${BASE_URL}habits/update.php"
      val DELETE_HABIT_URL = "${BASE_URL}habits/delete.php"
     val GET_PREDEFINED_HABITS_URL = "${BASE_URL}habits/get_predefined_habits.php"
-
     val GET_USER_HABITS_URL = "${BASE_URL}habits/get_habits.php"
+    val UPDATE_HABIT_STATUS_URL = "${BASE_URL}habits/update_status.php"
+    val SAVE_CUSTOM_HABIT_URL = "${BASE_URL}habits/save_custom.php"
+
 
 
     // Profile Endpoints

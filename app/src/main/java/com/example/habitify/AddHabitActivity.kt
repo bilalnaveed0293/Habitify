@@ -1,6 +1,8 @@
 package com.example.habitify
 
 import android.app.TimePickerDialog
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -57,7 +60,9 @@ class AddHabitActivity : AppCompatActivity() {
     private var selectedCategory: String = "all"
     private var selectedReminderTime: String = "09:00:00"
     private var isReminderEnabled: Boolean = true
-
+    private var selectedColorCode: String = "#4CAF50"
+    private var selectedIconName: String = "default"
+    private var editingPredefinedHabit: PredefinedHabit? = null
     private val TAG = "AddHabitActivity"
     private val GET_PREDEFINED_HABITS_URL = ApiConfig.GET_PREDEFINED_HABITS_URL
     private val CREATE_HABIT_URL = ApiConfig.CREATE_HABIT_URL
@@ -73,14 +78,25 @@ class AddHabitActivity : AppCompatActivity() {
         // Initialize views
         initializeViews()
 
-        // Debug: Check if views are found
-        Log.d(TAG, "RecyclerView found: ${::recyclerViewHabits.isInitialized}")
-        Log.d(TAG, "Empty TextView found: ${::tvEmptyState.isInitialized}")
-
-        // Initialize RecyclerView adapter FIRST
-        habitAdapter = PredefinedHabitAdapter(emptyList()) { habit ->
-            showAddHabitConfirmation(habit)
-        }
+        // Initialize RecyclerView adapter with both click handlers
+        habitAdapter = PredefinedHabitAdapter(
+            onHabitClick = { habit ->
+                if (habit.isCustom) {
+                    // For custom habits, show edit dialog
+                    showEditCustomHabitDialog(habit)
+                } else {
+                    // For predefined habits, show add/edit options
+                    showAddHabitConfirmation(habit)
+                }
+            },
+            onEditClick = { habit ->  // NEW: Edit handler
+                if (habit.isCustom) {
+                    showEditCustomHabitDialog(habit)
+                } else {
+                    showEditHabitDialog(habit)
+                }
+            }
+        )
 
         // Set up RecyclerView
         recyclerViewHabits.layoutManager = LinearLayoutManager(this)
@@ -166,9 +182,12 @@ class AddHabitActivity : AppCompatActivity() {
             try {
                 val searchQuery = etSearch.text.toString()
                 val encodedSearch = java.net.URLEncoder.encode(searchQuery, "UTF-8")
-                val url = "$GET_PREDEFINED_HABITS_URL?search=$encodedSearch&category=$selectedCategory"
+                val userId = sessionManager.getUserId()
 
-                Log.d(TAG, "Loading predefined habits from: $url")
+                // Include user_id in the request
+                val url = "$GET_PREDEFINED_HABITS_URL?search=$encodedSearch&category=$selectedCategory&user_id=$userId"
+
+                Log.d(TAG, "Loading habits from: $url")
 
                 val client = OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)
@@ -198,17 +217,30 @@ class AddHabitActivity : AppCompatActivity() {
                                 val data = jsonResponse.getJSONObject("data")
                                 val habitsArray = data.getJSONArray("habits")
 
-                                // Debug: Log number of habits received
                                 Log.d(TAG, "Number of habits received: ${habitsArray.length()}")
 
-                                // Parse habits
+                                // Parse habits including custom ones
                                 val habitsList = mutableListOf<PredefinedHabit>()
                                 for (i in 0 until habitsArray.length()) {
                                     val habitJson = habitsArray.getJSONObject(i)
-                                    habitsList.add(parsePredefinedHabit(habitJson))
 
-                                    // Debug: Log each habit
-                                    Log.d(TAG, "Habit ${i + 1}: ${habitJson.getString("title")}")
+                                    val isCustom = habitJson.optBoolean("is_custom", false)
+                                    val customHabitId = habitJson.optInt("custom_habit_id", 0)
+
+                                    habitsList.add(PredefinedHabit(
+                                        id = habitJson.getInt("id"),
+                                        title = habitJson.getString("title"),
+                                        description = habitJson.optString("description", null),
+                                        category = habitJson.optString("category", "general"),
+                                        iconName = habitJson.optString("icon_name", "default"),
+                                        colorCode = habitJson.optString("color_code", "#4CAF50"),
+                                        frequency = habitJson.optString("frequency", "daily"),
+                                        suggestedCount = habitJson.optInt("suggested_count", 0),
+                                        isCustom = isCustom,
+                                        customHabitId = if (customHabitId > 0) customHabitId else null
+                                    ))
+
+                                    Log.d(TAG, "Habit ${i + 1}: ${habitJson.getString("title")} (Custom: $isCustom)")
                                 }
 
                                 // Debug: Log parsed habits count
@@ -354,16 +386,18 @@ class AddHabitActivity : AppCompatActivity() {
     }
 
     private fun showAddHabitConfirmation(habit: PredefinedHabit) {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Add Habit")
-            .setMessage("Add \"${habit.title}\" to your habits?")
-            .setPositiveButton("Add") { _, _ ->
-                addPredefinedHabit(habit)
-            }
-            .setNegativeButton("Cancel", null)
-            .create()
+        val options = arrayOf("Add as is", "Edit before adding", "Cancel")
 
-        dialog.show()
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Add Habit")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> addPredefinedHabit(habit) // Add as is
+                    1 -> showEditHabitDialog(habit) // Edit before adding
+                    2 -> { /* Cancel */ }
+                }
+            }
+            .show()
     }
 
     private fun addPredefinedHabit(habit: PredefinedHabit) {
@@ -585,4 +619,493 @@ class AddHabitActivity : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
+    private fun showEditHabitDialog(habit: PredefinedHabit) {
+        editingPredefinedHabit = habit
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_habit, null)
+
+        val etHabitTitle = dialogView.findViewById<EditText>(R.id.et_habit_title)
+        val etHabitDescription = dialogView.findViewById<EditText>(R.id.et_habit_description)
+        val tvReminderTime = dialogView.findViewById<TextView>(R.id.tv_reminder_time)
+        val switchReminder = dialogView.findViewById<Switch>(R.id.switch_reminder)
+        val btnSetTime = dialogView.findViewById<MaterialButton>(R.id.btn_set_time)
+        val btnSaveCustom = dialogView.findViewById<MaterialButton>(R.id.btn_save_custom)
+        val btnSaveHabit = dialogView.findViewById<MaterialButton>(R.id.btn_save_habit)
+        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btn_cancel)
+        val llColorPalette = dialogView.findViewById<LinearLayout>(R.id.ll_color_palette)
+        val llIconPalette = dialogView.findViewById<LinearLayout>(R.id.ll_icon_palette)
+
+        // Set initial values
+        etHabitTitle.setText(habit.title)
+        etHabitDescription.setText(habit.description ?: "")
+        selectedColorCode = habit.colorCode
+        selectedIconName = habit.iconName
+
+        // Setup color palette
+        setupColorPalette(llColorPalette)
+
+        // Setup icon palette
+        setupIconPalette(llIconPalette)
+
+        // Setup time picker
+        btnSetTime.setOnClickListener {
+            showTimePickerDialog(tvReminderTime)
+        }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        // Setup button listeners
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+            editingPredefinedHabit = null
+        }
+
+        btnSaveCustom.setOnClickListener {
+            val title = etHabitTitle.text.toString().trim()
+            val description = etHabitDescription.text.toString().trim()
+
+            if (title.isEmpty()) {
+                etHabitTitle.error = "Habit title is required"
+                return@setOnClickListener
+            }
+
+            saveCustomHabit(
+                title = title,
+                description = description,
+                category = habit.category,
+                iconName = selectedIconName,
+                colorCode = selectedColorCode,
+                frequency = habit.frequency,
+                reminderTime = selectedReminderTime,
+                isReminderEnabled = switchReminder.isChecked
+            )
+
+            dialog.dismiss()
+            editingPredefinedHabit = null
+        }
+
+        btnSaveHabit.setOnClickListener {
+            val title = etHabitTitle.text.toString().trim()
+            val description = etHabitDescription.text.toString().trim()
+
+            if (title.isEmpty()) {
+                etHabitTitle.error = "Habit title is required"
+                return@setOnClickListener
+            }
+
+            // Create a modified habit
+            val modifiedHabit = PredefinedHabit(
+                id = habit.id,
+                title = title,
+                description = if (description.isNotEmpty()) description else null,
+                category = habit.category,
+                iconName = selectedIconName,
+                colorCode = selectedColorCode,
+                frequency = habit.frequency,
+                suggestedCount = habit.suggestedCount
+            )
+
+            addPredefinedHabit(modifiedHabit)
+
+            dialog.dismiss()
+            editingPredefinedHabit = null
+        }
+
+        dialog.show()
+    }
+    private fun setupColorPalette(colorPalette: LinearLayout) {
+        colorPalette.removeAllViews()
+
+        val colors = listOf(
+            "#4CAF50", "#2196F3", "#FF9800", "#9C27B0",
+            "#FF5722", "#673AB7", "#F44336", "#3F51B5",
+            "#FFC107", "#009688", "#795548", "#607D8B"
+        )
+
+        colors.forEach { color ->
+            val colorView = ImageView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(48.dpToPx(), 48.dpToPx()).apply {
+                    marginEnd = 8
+                }
+                background = ContextCompat.getDrawable(this@AddHabitActivity, R.drawable.circle_background)
+                setColorFilter(Color.parseColor(color))
+                tag = color
+
+                if (color == selectedColorCode) {
+                    setImageResource(R.drawable.ic_check_circle)
+                    imageTintList = ColorStateList.valueOf(Color.WHITE)
+                }
+
+                setOnClickListener {
+                    selectedColorCode = color
+                    setupColorPalette(colorPalette) // Refresh to show selection
+                }
+            }
+
+            colorPalette.addView(colorView)
+        }
+    }
+
+    private fun setupIconPalette(iconPalette: LinearLayout) {
+        iconPalette.removeAllViews()
+
+        val icons = listOf(
+            Pair("meditation", R.drawable.ic_meditation),
+            Pair("water", R.drawable.ic_water),
+            Pair("exercise", R.drawable.ic_exercise),
+            Pair("read", R.drawable.ic_book),
+            Pair("journal", R.drawable.ic_journal),
+            Pair("learn", R.drawable.ic_learn),
+            Pair("nosugar", R.drawable.ic_no_sugar),
+            Pair("sleep", R.drawable.ic_sleep),
+            Pair("gratitude", R.drawable.ic_gratitude),
+            Pair("walk", R.drawable.ic_walk),
+            Pair("default", R.drawable.ic_logo)
+        )
+
+        icons.forEach { (iconName, iconRes) ->
+            val iconView = ImageView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(48.dpToPx(), 48.dpToPx()).apply {
+                    marginEnd = 8
+                }
+                setImageResource(iconRes)
+                setColorFilter(Color.parseColor(selectedColorCode))
+                tag = iconName
+                background = if (iconName == selectedIconName) {
+                    ContextCompat.getDrawable(this@AddHabitActivity, R.drawable.icon_selected_background)
+                } else {
+                    null
+                }
+
+                setOnClickListener {
+                    selectedIconName = iconName
+                    setupIconPalette(iconPalette) // Refresh to show selection
+                }
+            }
+
+            iconPalette.addView(iconView)
+        }
+    }
+
+    private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
+
+    private fun showTimePickerDialog(timeTextView: TextView) {
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+        TimePickerDialog(
+            this,
+            { _, selectedHour, selectedMinute ->
+                selectedReminderTime = String.format("%02d:%02d:00", selectedHour, selectedMinute)
+
+                // Display in 12-hour format
+                val amPm = if (selectedHour < 12) "AM" else "PM"
+                val displayHour = if (selectedHour % 12 == 0) 12 else selectedHour % 12
+                timeTextView.text = String.format("%02d:%02d %s", displayHour, selectedMinute, amPm)
+            },
+            hour,
+            minute,
+            false
+        ).show()
+    }
+
+    // New function to save custom habit
+    private fun saveCustomHabit(
+        title: String,
+        description: String,
+        category: String,
+        iconName: String,
+        colorCode: String,
+        frequency: String,
+        reminderTime: String,
+        isReminderEnabled: Boolean
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val userId = sessionManager.getUserId()
+
+                // Create request body
+                val jsonObject = JSONObject().apply {
+                    put("user_id", userId)
+                    put("title", title)
+                    put("description", description)
+                    put("category", category)
+                    put("icon_name", iconName)
+                    put("color_code", colorCode)
+                    put("frequency", frequency)
+                    put("reminder_time", reminderTime)
+                    put("reminder_enabled", if (isReminderEnabled) 1 else 0)
+                }
+
+                val url = "${ApiConfig.BASE_URL}habits/save_custom.php"
+
+                Log.d(TAG, "Saving custom habit: $title")
+
+                // Make API call
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                Log.d(TAG, "Save Custom Response Code: ${response.code}")
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val success = jsonResponse.getBoolean("success")
+
+                            if (success) {
+                                showToast("Custom habit saved successfully!")
+                            } else {
+                                val message = jsonResponse.getString("message")
+                                showToast("Error: $message")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "JSON parsing error: ${e.message}", e)
+                            showToast("Failed to save custom habit")
+                        }
+                    } else {
+                        showToast("Failed to connect to server")
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Save custom habit error: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    showToast("Network error: ${e.message}")
+                }
+            }
+        }
+    }
+    private fun showEditCustomHabitDialog(habit: PredefinedHabit) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_custom_habit, null)
+
+        val etHabitTitle = dialogView.findViewById<EditText>(R.id.et_habit_title)
+        val etHabitDescription = dialogView.findViewById<EditText>(R.id.et_habit_description)
+        val tvReminderTime = dialogView.findViewById<TextView>(R.id.tv_reminder_time)
+        val switchReminder = dialogView.findViewById<Switch>(R.id.switch_reminder)
+        val btnSetTime = dialogView.findViewById<MaterialButton>(R.id.btn_set_time)
+        val btnSave = dialogView.findViewById<MaterialButton>(R.id.btn_save)
+        val btnDelete = dialogView.findViewById<MaterialButton>(R.id.btn_delete)
+        val btnCancel = dialogView.findViewById<MaterialButton>(R.id.btn_cancel)
+
+        // Set initial values - PRESERVE original icon and color
+        etHabitTitle.setText(habit.title)
+        etHabitDescription.setText(habit.description ?: "")
+        selectedColorCode = habit.colorCode
+        selectedIconName = habit.iconName
+
+        // Show the original icon and color (read-only)
+        val ivIconPreview = dialogView.findViewById<ImageView>(R.id.iv_icon_preview)
+        val vColorPreview = dialogView.findViewById<View>(R.id.v_color_preview)
+
+        ivIconPreview.setImageResource(habit.getIconResource())
+        ivIconPreview.setColorFilter(Color.parseColor(habit.colorCode))
+
+        try {
+            vColorPreview.setBackgroundColor(Color.parseColor(habit.colorCode))
+        } catch (e: Exception) {
+            vColorPreview.setBackgroundColor(Color.parseColor("#4CAF50"))
+        }
+
+        // Setup time picker
+        btnSetTime.setOnClickListener {
+            showTimePickerDialog(tvReminderTime)
+        }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSave.setOnClickListener {
+            val title = etHabitTitle.text.toString().trim()
+            val description = etHabitDescription.text.toString().trim()
+
+            if (title.isEmpty()) {
+                etHabitTitle.error = "Habit title is required"
+                return@setOnClickListener
+            }
+
+            // Update custom habit (preserving icon and color)
+            updateCustomHabit(
+                customHabitId = habit.customHabitId ?: 0,
+                title = title,
+                description = description,
+                category = habit.category, // Preserve category
+                iconName = habit.iconName, // Preserve icon
+                colorCode = habit.colorCode, // Preserve color
+                frequency = habit.frequency,
+                reminderTime = selectedReminderTime,
+                isReminderEnabled = switchReminder.isChecked
+            )
+
+            dialog.dismiss()
+        }
+
+        btnDelete.setOnClickListener {
+            showDeleteConfirmationDialog(habit)
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    // NEW: Update custom habit function
+    private fun updateCustomHabit(
+        customHabitId: Int,
+        title: String,
+        description: String,
+        category: String,
+        iconName: String,
+        colorCode: String,
+        frequency: String,
+        reminderTime: String,
+        isReminderEnabled: Boolean
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val userId = sessionManager.getUserId()
+
+                // Create request body
+                val jsonObject = JSONObject().apply {
+                    put("user_id", userId)
+                    put("custom_habit_id", customHabitId)
+                    put("title", title)
+                    put("description", description)
+                    put("category", category) // Preserve category
+                    put("icon_name", iconName) // Preserve icon
+                    put("color_code", colorCode) // Preserve color
+                    put("frequency", frequency)
+                    put("reminder_time", reminderTime)
+                    put("reminder_enabled", if (isReminderEnabled) 1 else 0)
+                }
+
+                val url = ApiConfig.SAVE_CUSTOM_HABIT_URL
+
+                Log.d(TAG, "Updating custom habit: $title")
+
+                // Make API call
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val success = jsonResponse.getBoolean("success")
+
+                            if (success) {
+                                showToast("Custom habit updated successfully!")
+                                // Refresh the list
+                                loadPredefinedHabits()
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "JSON parsing error: ${e.message}", e)
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Update custom habit error: ${e.message}", e)
+            }
+        }
+    }
+
+    // NEW: Delete custom habit function
+    private fun showDeleteConfirmationDialog(habit: PredefinedHabit) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete Custom Habit")
+            .setMessage("Are you sure you want to delete '${habit.title}'?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteCustomHabit(habit.customHabitId ?: 0)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun deleteCustomHabit(customHabitId: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val userId = sessionManager.getUserId()
+
+                val jsonObject = JSONObject().apply {
+                    put("user_id", userId)
+                    put("custom_habit_id", customHabitId)
+                    put("is_active", 0) // Soft delete
+                }
+
+                val url = ApiConfig.SAVE_CUSTOM_HABIT_URL
+
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .build()
+
+                val response = client.newCall(request).execute()
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        showToast("Custom habit deleted successfully!")
+                        loadPredefinedHabits()
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Delete custom habit error: ${e.message}", e)
+            }
+        }
+    }
+
 }

@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
     private val GET_USER_HABITS_URL = ApiConfig.GET_USER_HABITS_URL
+    private val UPDATE_HABIT_STATUS_URL = ApiConfig.UPDATE_HABIT_STATUS_URL
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -136,12 +138,103 @@ class MainActivity : AppCompatActivity() {
             onHabitLongClick = { habit ->
                 // Handle long click (delete, edit, etc.)
                 showHabitOptions(habit)
+            },
+            onCompleteClick = { habit ->  // NEW: Add completion handler
+                showCompletionDialog(habit)
             }
         )
 
         recyclerViewHabits.layoutManager = LinearLayoutManager(this)
         recyclerViewHabits.adapter = habitAdapter
     }
+    private fun showCompletionDialog(habit: Habit) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Complete Habit")
+            .setMessage("Mark '${habit.title}' as completed?")
+            .setPositiveButton("Mark Complete") { _, _ ->
+                updateHabitStatus(habit.id, "completed")
+            }
+            .setNegativeButton("Mark Failed") { _, _ ->
+                updateHabitStatus(habit.id, "failed")
+            }
+            .setNeutralButton("Cancel", null)
+            .show()
+    }
+
+    // NEW: Function to update habit status
+    private fun updateHabitStatus(habitId: Int, status: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val userId = sessionManager.getUserId()
+
+                // Create request body
+                val jsonObject = JSONObject().apply {
+                    put("user_id", userId)
+                    put("habit_id", habitId)
+                    put("status", status)
+                }
+
+                Log.d(TAG, "Updating habit status: $habitId to $status")
+                Log.d(TAG, "API URL: $UPDATE_HABIT_STATUS_URL")
+                Log.d(TAG, "Request Body: ${jsonObject.toString()}")
+
+                // Make API call
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(UPDATE_HABIT_STATUS_URL)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                Log.d(TAG, "Update Status Response Code: ${response.code}")
+                Log.d(TAG, "Update Status Response Body: $responseBody")
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val success = jsonResponse.getBoolean("success")
+
+                            if (success) {
+                                showToast("Habit marked as $status!")
+
+                                // Refresh habits to show updated status
+                                loadUserHabits()
+
+                            } else {
+                                val message = jsonResponse.getString("message")
+                                showToast("Error: $message")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "JSON parsing error: ${e.message}", e)
+                            showToast("Failed to update habit")
+                        }
+                    } else {
+                        showToast("Failed to connect to server")
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Update status error: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    showToast("Network error: ${e.message}")
+                }
+            }
+        }
+    }
+
 
     private fun loadUserHabits() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -355,8 +448,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         // Refresh user data and habits when returning to MainActivity
         if (sessionManager.isLoggedIn()) {
-            setupUserData()
-            loadUserHabits()
+            refreshUserProfile() // Refresh profile first
+            setupUserData() // Then update UI
+            loadUserHabits() // Then load habits
         }
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -368,5 +462,72 @@ class MainActivity : AppCompatActivity() {
             showToast("Habit added successfully!")
         }
     }
+    private fun refreshUserProfile() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val userId = sessionManager.getUserId()
 
+                // Create request body
+                val jsonObject = JSONObject().apply {
+                    put("user_id", userId)
+                }
+
+                val url = ApiConfig.GET_PROFILE_URL
+
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val success = jsonResponse.getBoolean("success")
+
+                            if (success) {
+                                val data = jsonResponse.getJSONObject("data")
+                                val user = data.getJSONObject("user")
+
+                                // Update session with fresh data
+                                sessionManager.saveUserSession(
+                                    userId = user.getInt("id"),
+                                    userName = user.getString("name"),
+                                    userEmail = user.getString("email"),
+                                    userToken = sessionManager.getUserToken(),
+                                    theme = user.optString("theme", "system"),
+                                    phone = user.optString("phone", ""),
+                                    profilePicture = user.optString("profile_picture", null),
+                                    profilePictureUrl = user.optString("profile_picture_url", null)
+                                )
+
+                                // Update UI
+                                setupUserData()
+
+                                Log.d(TAG, "Profile refreshed successfully")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error parsing profile: ${e.message}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error refreshing profile: ${e.message}")
+            }
+        }
+    }
 }

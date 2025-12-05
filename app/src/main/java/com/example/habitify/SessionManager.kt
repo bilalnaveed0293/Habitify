@@ -28,6 +28,7 @@ class SessionManager(context: Context) {
     }
 
     // Save user session
+    // Save user session
     fun saveUserSession(
         userId: Int,
         userName: String,
@@ -35,8 +36,8 @@ class SessionManager(context: Context) {
         userToken: String,
         theme: String = "system",
         phone: String = "",
-        profilePicture: String? = null, // ADD THIS PARAMETER
-        profilePictureUrl: String? = null // ADD THIS PARAMETER
+        profilePicture: String? = null, // Should already exist
+        profilePictureUrl: String? = null // Should already exist
     ) {
         editor.putBoolean(KEY_IS_LOGGED_IN, true)
         editor.putInt(KEY_USER_ID, userId)
@@ -45,8 +46,8 @@ class SessionManager(context: Context) {
         editor.putString(KEY_USER_TOKEN, userToken)
         editor.putString(KEY_USER_THEME, theme)
         editor.putString(KEY_USER_PHONE, phone)
-        editor.putString(KEY_PROFILE_PICTURE, profilePicture) // SAVE
-        editor.putString(KEY_PROFILE_PICTURE_URL, profilePictureUrl) // SAVE
+        editor.putString(KEY_PROFILE_PICTURE, profilePicture) // This should save
+        editor.putString(KEY_PROFILE_PICTURE_URL, profilePictureUrl) // This should save
         editor.apply()
     }
 
