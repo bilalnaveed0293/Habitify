@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -65,7 +66,6 @@ class AddHabitActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_add_habit)
 
-        sessionManager = SessionManager(this)
         initializeViews()
 
         habitAdapter = PredefinedHabitAdapter(
@@ -832,29 +832,58 @@ class AddHabitActivity : AppCompatActivity() {
     }
 
     private fun hideCategoryChips(dialogView: View) {
-        // Hide category chips
-        dialogView.findViewById<TextView>(R.id.tv_category_custom)?.visibility = View.GONE
-        dialogView.findViewById<TextView>(R.id.tv_category_mindfulness)?.visibility = View.GONE
-        dialogView.findViewById<TextView>(R.id.tv_category_health)?.visibility = View.GONE
-        dialogView.findViewById<TextView>(R.id.tv_category_fitness)?.visibility = View.GONE
-        dialogView.findViewById<TextView>(R.id.tv_category_learning)?.visibility = View.GONE
+        // Hide all category chips (these IDs exist in your XML)
+        val chipIds = listOf(
+            R.id.tv_category_custom,
+            R.id.tv_category_mindfulness,
+            R.id.tv_category_health,
+            R.id.tv_category_fitness,
+            R.id.tv_category_learning
+        )
 
-        // Hide category label
-        val categoryContainer = dialogView.findViewById<LinearLayout>(R.id.ll_category_chips)?.parent as? HorizontalScrollView
-        val parent = categoryContainer?.parent as? LinearLayout
-        parent?.let {
-            for (i in 0 until it.childCount) {
-                val child = it.getChildAt(i)
-                if (child is TextView && child.text == "Category") {
-                    child.visibility = View.GONE
-                    // Hide the category container too
-                    if (i + 1 < it.childCount) {
-                        it.getChildAt(i + 1).visibility = View.GONE
-                    }
-                    break
-                }
+        chipIds.forEach { id ->
+            dialogView.findViewById<View>(id)?.visibility = View.GONE
+        }
+
+        // Find the "Category" label by its text (since it doesn't have an ID)
+        // Look for a TextView with "Category" text in the dialog
+        findTextViewWithText(dialogView, "Category")?.visibility = View.GONE
+
+        // Find and hide the HorizontalScrollView that contains the chips
+        // We need to find it by navigating the view hierarchy
+        findHorizontalScrollViewContainingChips(dialogView)?.visibility = View.GONE
+    }
+
+    private fun findTextViewWithText(root: View, targetText: String): TextView? {
+        if (root is TextView && root.text.toString() == targetText) {
+            return root
+        }
+
+        if (root is ViewGroup) {
+            for (i in 0 until root.childCount) {
+                val child = root.getChildAt(i)
+                val found = findTextViewWithText(child, targetText)
+                if (found != null) return found
             }
         }
+
+        return null
+    }
+
+    private fun findHorizontalScrollViewContainingChips(root: View): HorizontalScrollView? {
+        // First find one of the chips
+        val chip = root.findViewById<View>(R.id.tv_category_custom) ?: return null
+
+        // Traverse up the hierarchy to find the HorizontalScrollView
+        var parent = chip.parent
+        while (parent != null) {
+            if (parent is HorizontalScrollView) {
+                return parent
+            }
+            parent = parent.parent
+        }
+
+        return null
     }
 
     private fun addHabitToUser(habit: PredefinedHabit) {
