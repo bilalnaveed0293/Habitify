@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit Habit"
+            android:text="Create Custom Habit"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
@@ -41,7 +41,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_habit_description"
@@ -53,79 +53,11 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Frequency -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Frequency"
-            android:textSize="14sp"
-            android:textColor="@color/primary_text"
-            android:layout_marginBottom="4dp" />
-
-        <RadioGroup
-            android:id="@+id/rg_frequency"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rb_daily"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Daily"
-                android:checked="true" />
-
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/rb_weekly"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Weekly" />
-
-        </RadioGroup>
-
-        <!-- Reminder Time -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp"
-            android:gravity="center_vertical">
-
-            <Switch
-                android:id="@+id/switch_reminder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reminder"
-                android:checked="true" />
-
-            <TextView
-                android:id="@+id/tv_reminder_time"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="09:00 AM"
-                android:textSize="14sp"
-                android:gravity="end"
-                android:textColor="@color/primary_text"
-                android:padding="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_set_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Set Time"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_marginStart="8dp" />
-
-
-        </LinearLayout>
         <!-- Category Selection -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/ll_category_chips"
             android:text="Category"
             android:textSize="14sp"
             android:textColor="@color/primary_text"
@@ -136,8 +68,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp">
 
+
             <LinearLayout
-                android:id="@+id/ll_category_chips"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -209,6 +141,123 @@
 
             </LinearLayout>
         </HorizontalScrollView>
+
+        <!-- Icon Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Icon"
+            android:textSize="14sp"
+            android:textColor="@color/primary_text"
+            android:layout_marginBottom="8dp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/ll_icon_palette"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp" />
+
+        </HorizontalScrollView>
+
+        <!-- Color Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Color"
+            android:textSize="14sp"
+            android:textColor="@color/primary_text"
+            android:layout_marginBottom="8dp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/ll_color_palette"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp" />
+
+        </HorizontalScrollView>
+
+        <!-- Frequency -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Frequency"
+            android:textSize="14sp"
+            android:textColor="@color/primary_text"
+            android:layout_marginBottom="4dp" />
+
+        <RadioGroup
+            android:id="@+id/rg_frequency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rb_daily"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Daily"
+                android:checked="true" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rb_weekly"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Weekly" />
+
+        </RadioGroup>
+
+        <!-- Reminder Time -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical">
+
+            <Switch
+                android:id="@+id/switch_reminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reminder"
+                android:checked="true" />
+
+            <TextView
+                android:id="@+id/tv_reminder_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="09:00 AM"
+                android:textSize="14sp"
+                android:gravity="end"
+                android:textColor="@color/primary_text"
+                android:padding="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_set_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set Time"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+        <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -227,14 +276,14 @@
                 android:id="@+id/btn_save_custom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Save as Custom" />
+                android:text="Save as Custom"
+                android:layout_marginEnd="8dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save_habit"
                 android:layout_width="124dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Save" />
+                android:text="Save and Add" />
 
         </LinearLayout>
 

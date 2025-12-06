@@ -26,8 +26,9 @@ class PredefinedHabitAdapter(
         private val tvHabitDescription: TextView = itemView.findViewById(R.id.tv_habit_description)
         private val tvHabitCategory: TextView = itemView.findViewById(R.id.tv_habit_category)
         private val tvSuggestedCount: TextView = itemView.findViewById(R.id.tv_suggested_count)
-        private val btnAddHabit: View = itemView.findViewById(R.id.btn_add_habit)
-        private val tvCustomBadge: TextView = itemView.findViewById(R.id.tv_custom_badge) // Add this ID to your XML
+        private val btnAddHabit: ImageView = itemView.findViewById(R.id.btn_add_habit)
+        private val tvCustomBadge: TextView = itemView.findViewById(R.id.tv_custom_badge)
+        private val tvFrequency: TextView = itemView.findViewById(R.id.tv_frequency)
 
         fun bind(habit: PredefinedHabit) {
             Log.d(TAG, "Binding habit: ${habit.title} (Custom: ${habit.isCustom})")
@@ -35,69 +36,89 @@ class PredefinedHabitAdapter(
             // Set habit title and description
             tvHabitTitle.text = habit.title
             tvHabitDescription.text = habit.description ?: "No description"
+            tvHabitDescription.visibility = if (habit.description.isNullOrEmpty()) View.GONE else View.VISIBLE
 
-            // Set category
-            tvHabitCategory.text = when (habit.category) {
-                "mindfulness" -> "🧘 Mindfulness"
-                "health" -> "💊 Health"
-                "fitness" -> "💪 Fitness"
-                "learning" -> "📚 Learning"
-                else -> habit.category.replaceFirstChar { it.uppercase() }
+            // Set category with emoji
+            val (categoryEmoji, categoryText) = when (habit.category) {
+                "mindfulness" -> Pair("🧘", "Mindfulness")
+                "health" -> Pair("💊", "Health")
+                "fitness" -> Pair("💪", "Fitness")
+                "learning" -> Pair("📚", "Learning")
+                "custom" -> Pair("✨", "Custom")
+                else -> Pair("", habit.category.replaceFirstChar { it.uppercase() })
             }
+            tvHabitCategory.text = "$categoryEmoji $categoryText"
 
-            // Set suggested count or custom badge
+            // Set frequency badge
+            val frequencyText = when (habit.frequency) {
+                "daily" -> "DAILY"
+                "weekly" -> "WEEKLY"
+                else -> habit.frequency.uppercase()
+            }
+            tvFrequency.text = frequencyText
+
+            // For custom habits
             if (habit.isCustom) {
-                tvSuggestedCount.text = "Your Custom Habit"
+                tvSuggestedCount.text = "Your Template"
                 tvSuggestedCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.primary_color))
 
                 // Show custom badge
                 tvCustomBadge.visibility = View.VISIBLE
-                tvCustomBadge.text = "CUSTOM"
+
+                // Show edit icon for custom habits
+                btnAddHabit.setImageResource(R.drawable.ic_chevron_right)
+                btnAddHabit.contentDescription = "Edit custom habit"
+                btnAddHabit.setOnClickListener {
+                    onEditClick(habit)
+                }
             } else {
-                tvSuggestedCount.text = "Added by ${habit.suggestedCount} users"
+                // For predefined habits
+                tvSuggestedCount.text = "${habit.suggestedCount} users"
                 tvSuggestedCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.secondary_text))
 
                 // Hide custom badge
                 tvCustomBadge.visibility = View.GONE
+
+                // Show add icon for predefined habits
+                btnAddHabit.setImageResource(R.drawable.ic_add_circle)
+                btnAddHabit.contentDescription = "Add habit"
+                btnAddHabit.setOnClickListener {
+                    onHabitClick(habit)
+                }
             }
 
             // Set habit icon and color
-            ivHabitIcon.setImageResource(habit.getIconResource())
+            // In your PredefinedHabitAdapter, update the bind function:
+            val iconResource = when (habit.iconName.toLowerCase()) {
+                "meditation" -> R.drawable.ic_meditation
+                "water" -> R.drawable.ic_water
+                "exercise" -> R.drawable.ic_exercise
+                "read" -> R.drawable.ic_book
+                "journal" -> R.drawable.ic_journal
+                "learn" -> R.drawable.ic_learn
+                "nosugar" -> R.drawable.ic_no_sugar
+                "sleep" -> R.drawable.ic_sleep
+                "gratitude" -> R.drawable.ic_gratitude
+                "walk" -> R.drawable.ic_walk
+                else -> R.drawable.ic_logo
+            }
+
+            ivHabitIcon.setImageResource(iconResource)
+
             try {
                 val habitColor = Color.parseColor(habit.colorCode)
                 ivHabitIcon.setColorFilter(habitColor)
+                // Also tint the frequency badge
+                tvFrequency.background?.setTint(habitColor)
             } catch (e: Exception) {
-                ivHabitIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.primary_color))
+                val defaultColor = ContextCompat.getColor(itemView.context, R.color.primary_color)
+                ivHabitIcon.setColorFilter(defaultColor)
+                tvFrequency.background?.setTint(defaultColor)
             }
 
-            // Set click listener for add button
-            btnAddHabit.setOnClickListener {
-                Log.d(TAG, "Add button clicked for: ${habit.title}")
-                onHabitClick(habit)
-            }
-
-            // For custom habits, change button to edit
-            if (habit.isCustom) {
-                btnAddHabit.background = ContextCompat.getDrawable(itemView.context, R.drawable.ic_more_vert)
-                btnAddHabit.setOnClickListener {
-                    Log.d(TAG, "Edit button clicked for custom habit: ${habit.title}")
-                    onEditClick(habit)
-                }
-            } else {
-                btnAddHabit.background = ContextCompat.getDrawable(itemView.context, R.drawable.ic_add_circle)
-                btnAddHabit.setOnClickListener {
-                    onHabitClick(habit)
-                }
-            }
-
-            // Whole card click - for predefined habits shows edit dialog, for custom shows edit
+            // Whole card click
             cardHabit.setOnClickListener {
-                Log.d(TAG, "Card clicked for: ${habit.title}")
-                if (habit.isCustom) {
-                    onEditClick(habit)
-                } else {
-                    onHabitClick(habit)
-                }
+                onHabitClick(habit)
             }
         }
     }

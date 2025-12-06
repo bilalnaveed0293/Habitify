@@ -26,12 +26,43 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Action Button (Add/Edit) -->
+        <ImageView
+            android:id="@+id/btn_add_habit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_add_circle"
+            app:layout_constraintBottom_toBottomOf="@id/iv_habit_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_habit_icon"
+            app:tint="@color/primary_color" />
+
+        <!-- Custom Badge -->
+        <TextView
+            android:id="@+id/tv_custom_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CUSTOM"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:background="@drawable/custom_badge_background"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/btn_add_habit"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp" />
+
         <!-- Habit Title -->
         <TextView
             android:id="@+id/tv_habit_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
             android:text="Habit Title"
             android:textColor="@color/primary_text"
             android:textSize="16sp"
@@ -46,10 +77,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:layout_marginEnd="12dp"
             android:text="Habit description goes here"
             android:textColor="@color/secondary_text"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="@id/tv_habit_title"
+            app:layout_constraintEnd_toStartOf="@id/btn_add_habit"
             app:layout_constraintStart_toStartOf="@id/tv_habit_title"
             app:layout_constraintTop_toBottomOf="@id/tv_habit_title" />
 
@@ -66,6 +98,21 @@
             app:layout_constraintStart_toStartOf="@id/tv_habit_title"
             app:layout_constraintTop_toBottomOf="@id/tv_habit_description" />
 
+        <!-- Frequency Badge -->
+        <TextView
+            android:id="@+id/tv_frequency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Daily"
+            android:textSize="11sp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:background="@drawable/frequency_badge_background"
+            android:textColor="@color/white"
+            app:layout_constraintBaseline_toBaselineOf="@id/tv_habit_category"
+            app:layout_constraintStart_toEndOf="@id/tv_habit_category" />
+
         <!-- Suggested Count -->
         <TextView
             android:id="@+id/tv_suggested_count"
@@ -74,36 +121,9 @@
             android:layout_marginStart="8dp"
             android:text="0 users"
             android:textColor="@color/tertiary_text"
-            android:textSize="12sp"
+            android:textSize="11sp"
             app:layout_constraintBaseline_toBaselineOf="@id/tv_habit_category"
-            app:layout_constraintStart_toEndOf="@id/tv_habit_category" />
-
-        <!-- Add Button -->
-        <View
-            android:id="@+id/btn_add_habit"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/ic_add_circle"
-            android:padding="8dp"
-            app:layout_constraintBottom_toBottomOf="@id/iv_habit_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/iv_habit_icon" />
-        <TextView
-            android:id="@+id/tv_custom_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CUSTOM"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="2dp"
-            android:background="@drawable/custom_badge_background"
-            android:textColor="@android:color/white"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp" />
+            app:layout_constraintStart_toEndOf="@id/tv_frequency" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

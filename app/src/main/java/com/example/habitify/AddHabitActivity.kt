@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
@@ -83,6 +84,11 @@ class AddHabitActivity : AppCompatActivity() {
 
         setupClickListeners()
         setupWindowInsets()
+
+        // Initialize with default categories first
+        categories = listOf("all", "mindfulness", "health", "fitness", "learning", "custom")
+        setupCategoriesFilter()
+
         loadPredefinedHabits()
     }
 
@@ -153,6 +159,23 @@ class AddHabitActivity : AppCompatActivity() {
                                 val data = jsonResponse.getJSONObject("data")
                                 val habitsArray = data.getJSONArray("habits")
 
+                                // Load categories from API response
+                                if (data.has("categories")) {
+                                    val categoriesArray = data.getJSONArray("categories")
+                                    val categoriesList = mutableListOf<String>()
+                                    for (i in 0 until categoriesArray.length()) {
+                                        categoriesList.add(categoriesArray.getString(i))
+                                    }
+                                    categories = categoriesList
+
+                                    // Setup category filters after loading habits
+                                    setupCategoriesFilter()
+                                } else {
+                                    // Fallback categories if not provided by API
+                                    categories = listOf("all", "mindfulness", "health", "fitness", "learning", "custom")
+                                    setupCategoriesFilter()
+                                }
+
                                 val habitsList = mutableListOf<PredefinedHabit>()
                                 for (i in 0 until habitsArray.length()) {
                                     val habitJson = habitsArray.getJSONObject(i)
@@ -189,7 +212,14 @@ class AddHabitActivity : AppCompatActivity() {
     private fun setupCategoriesFilter() {
         chipGroupCategories.removeAllViews()
 
-        for (category in categories) {
+        // Always show "All" category first
+        val allCategories = if (categories.isNotEmpty()) {
+            listOf("all") + categories.filter { it != "all" }
+        } else {
+            listOf("all", "mindfulness", "health", "fitness", "learning", "custom")
+        }
+
+        for (category in allCategories) {
             val chip = layoutInflater.inflate(R.layout.item_category_chip, chipGroupCategories, false) as MaterialCardView
             val chipText = chip.findViewById<TextView>(R.id.tv_category)
 
@@ -206,18 +236,32 @@ class AddHabitActivity : AppCompatActivity() {
             chipText.text = displayName
             chip.tag = category
 
+            // Set selected state
             if (category == selectedCategory) {
-                chip.setCardBackgroundColor(getColor(R.color.primary_color))
-                chipText.setTextColor(getColor(R.color.white))
+                chip.setCardBackgroundColor(ContextCompat.getColor(this, R.color.primary_color))
+                chipText.setTextColor(ContextCompat.getColor(this, R.color.white))
+                chip.elevation = 4f
             } else {
-                chip.setCardBackgroundColor(getColor(R.color.chip_background))
-                chipText.setTextColor(getColor(R.color.primary_text))
+                chip.setCardBackgroundColor(ContextCompat.getColor(this, R.color.chip_background))
+                chipText.setTextColor(ContextCompat.getColor(this, R.color.primary_text))
+                chip.elevation = 0f
             }
 
             chip.setOnClickListener {
                 selectedCategory = category
                 setupCategoriesFilter()
                 loadPredefinedHabits()
+
+                // Scroll to show selected chip (without smoothScrollTo)
+                chipGroupCategories.post {
+                    // Get the parent HorizontalScrollView
+                    val parentScrollView = chipGroupCategories.parent as? HorizontalScrollView
+                    parentScrollView?.let { scrollView ->
+                        // Calculate scroll position
+                        val scrollX = chip.left - scrollView.paddingLeft
+                        scrollView.smoothScrollTo(scrollX, 0)  // Use the scrollView's smoothScrollTo
+                    }
+                }
             }
 
             chipGroupCategories.addView(chip)
@@ -267,19 +311,86 @@ class AddHabitActivity : AppCompatActivity() {
     }
 
     private fun showCustomHabitOptions(habit: PredefinedHabit) {
-        val options = arrayOf("Add to My Habits", "Edit Custom Habit", "Delete Custom Habit", "Cancel")
+        val options = arrayOf("Add to My Habits", "Edit", "Delete", "Cancel")
 
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(habit.title)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> addHabitToUser(habit)
+                    0 -> addCustomHabitToUser(habit)
                     1 -> showEditCustomHabitDialog(habit)
                     2 -> showDeleteConfirmationDialog(habit)
                     3 -> { /* Cancel */ }
                 }
             }
             .show()
+    }
+
+    private fun addCustomHabitToUser(habit: PredefinedHabit) {
+        val customHabitId = habit.customHabitId ?: 0
+
+        if (customHabitId == 0) {
+            showToast("Invalid custom habit")
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val userId = sessionManager.getUserId()
+
+                val jsonObject = JSONObject().apply {
+                    put("user_id", userId)
+                    put("custom_habit_id", customHabitId)
+                }
+
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val requestBody = jsonObject.toString().toRequestBody(mediaType)
+
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build()
+
+                val request = Request.Builder()
+                    .url("${ApiConfig.BASE_URL}habits/add_custom_to_habits.php")
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
+                    .build()
+
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val success = jsonResponse.getBoolean("success")
+
+                            if (success) {
+                                showToast("Custom habit added to your habits!")
+                                setResult(RESULT_OK)
+                                finish()
+                            } else {
+                                val message = jsonResponse.getString("message")
+                                showToast("Error: $message")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("AddHabit", "JSON error: ${e.message}")
+                            showToast("Failed to add habit")
+                        }
+                    } else {
+                        showToast("Failed to connect to server")
+                    }
+                }
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showToast("Network error: ${e.message}")
+                }
+            }
+        }
     }
 
     // MAIN CUSTOM HABIT DIALOG
@@ -299,13 +410,13 @@ class AddHabitActivity : AppCompatActivity() {
         // Hide "Save as Habit" button
         dialogView.findViewById<MaterialButton>(R.id.btn_save_habit)?.visibility = View.GONE
 
-        // Setup category chips
+        // Setup category chips - THIS WILL SET DEFAULT ICON/COLOR
         setupCategoryChips(dialogView)
 
         // Setup color palette
         setupColorPalette(dialogView)
 
-        // Setup icon palette
+        // Setup icon palette - THIS USES SELECTED CATEGORY
         setupIconPalette(dialogView)
 
         // Setup time picker
@@ -362,6 +473,15 @@ class AddHabitActivity : AppCompatActivity() {
             dialogView.findViewById<TextView>(R.id.tv_category_learning)
         )
 
+        // Define default icon and color for each category
+        val categoryDefaults = mapOf(
+            "custom" to DefaultValues("default", "#4CAF50"),
+            "mindfulness" to DefaultValues("meditation", "#4CAF50"),
+            "health" to DefaultValues("water", "#2196F3"),
+            "fitness" to DefaultValues("exercise", "#FF9800"),
+            "learning" to DefaultValues("read", "#9C27B0")
+        )
+
         // Set click listeners
         chips.forEach { chip ->
             chip?.setOnClickListener {
@@ -376,7 +496,7 @@ class AddHabitActivity : AppCompatActivity() {
                 chip.setTextColor(getColor(R.color.white))
 
                 // Update selected category
-                selectedHabitCategory = when (chip.id) {
+                val newCategory = when (chip.id) {
                     R.id.tv_category_custom -> "custom"
                     R.id.tv_category_mindfulness -> "mindfulness"
                     R.id.tv_category_health -> "health"
@@ -384,14 +504,31 @@ class AddHabitActivity : AppCompatActivity() {
                     R.id.tv_category_learning -> "learning"
                     else -> "custom"
                 }
+
+                selectedHabitCategory = newCategory
+
+                // Update icon and color based on category
+                val defaults = categoryDefaults[newCategory] ?: DefaultValues("default", "#4CAF50")
+                selectedIconName = defaults.icon
+                selectedColorCode = defaults.color
+
+                // Refresh palettes
+                setupIconPalette(dialogView)
+                setupColorPalette(dialogView)
             }
         }
     }
 
+    // Add this data class at the top of your AddHabitActivity class (outside any function)
+    data class DefaultValues(val icon: String, val color: String)
+
     private fun setupColorPalette(dialogView: View) {
-        val llColorPalette = dialogView.findViewById<LinearLayout>(R.id.ll_category_chips)
+        val llColorPalette = dialogView.findViewById<LinearLayout>(R.id.ll_color_palette)
         llColorPalette?.removeAllViews()
 
+        // Make sure your dialog_edit_habit.xml has this ID
+
+        // Define colors
         val colors = listOf(
             "#4CAF50", "#2196F3", "#FF9800", "#9C27B0",
             "#FF5722", "#673AB7", "#F44336", "#3F51B5",
@@ -407,16 +544,19 @@ class AddHabitActivity : AppCompatActivity() {
                 setColorFilter(Color.parseColor(color))
                 tag = color
 
+                // Show checkmark for selected color
                 if (color == selectedColorCode) {
                     setImageResource(R.drawable.ic_check_circle)
                     imageTintList = android.content.res.ColorStateList.valueOf(Color.WHITE)
+                } else {
+                    setImageDrawable(null) // Clear checkmark
                 }
 
                 setOnClickListener {
                     selectedColorCode = color
-                    setupColorPalette(dialogView)
-                    // Update icon colors too
+                    // Update icon colors to match selected color
                     setupIconPalette(dialogView)
+                    setupColorPalette(dialogView)
                 }
             }
 
@@ -425,40 +565,80 @@ class AddHabitActivity : AppCompatActivity() {
     }
 
     private fun setupIconPalette(dialogView: View) {
-        val llIconPalette = dialogView.findViewById<LinearLayout>(R.id.ll_category_chips)
+        val llIconPalette = dialogView.findViewById<LinearLayout>(R.id.ll_icon_palette)
         llIconPalette?.removeAllViews()
 
-        val icons = listOf(
-            Pair("meditation", R.drawable.ic_meditation),
-            Pair("water", R.drawable.ic_water),
-            Pair("exercise", R.drawable.ic_exercise),
-            Pair("read", R.drawable.ic_book),
-            Pair("journal", R.drawable.ic_journal),
-            Pair("learn", R.drawable.ic_learn),
-            Pair("nosugar", R.drawable.ic_no_sugar),
-            Pair("sleep", R.drawable.ic_sleep),
-            Pair("gratitude", R.drawable.ic_gratitude),
-            Pair("walk", R.drawable.ic_walk),
-            Pair("default", R.drawable.ic_logo)
+        // Define icons by category with their default colors
+        val iconSets = mapOf(
+            "custom" to listOf(
+                Triple("meditation", R.drawable.ic_meditation, "#4CAF50"),
+                Triple("water", R.drawable.ic_water, "#2196F3"),
+                Triple("exercise", R.drawable.ic_exercise, "#FF9800"),
+                Triple("read", R.drawable.ic_book, "#9C27B0"),
+                Triple("journal", R.drawable.ic_journal, "#FF5722")
+            ),
+            "mindfulness" to listOf(
+                Triple("meditation", R.drawable.ic_meditation, "#4CAF50"),
+                Triple("journal", R.drawable.ic_journal, "#FF5722"),
+                Triple("gratitude", R.drawable.ic_gratitude, "#FFC107"),
+                Triple("sleep", R.drawable.ic_sleep, "#3F51B5")
+            ),
+            "health" to listOf(
+                Triple("water", R.drawable.ic_water, "#2196F3"),
+                Triple("nosugar", R.drawable.ic_no_sugar, "#F44336"),
+                Triple("sleep", R.drawable.ic_sleep, "#3F51B5"),
+                Triple("walk", R.drawable.ic_walk, "#009688")
+            ),
+            "fitness" to listOf(
+                Triple("exercise", R.drawable.ic_exercise, "#FF9800"),
+                Triple("walk", R.drawable.ic_walk, "#009688"),
+                Triple("water", R.drawable.ic_water, "#2196F3")
+            ),
+            "learning" to listOf(
+                Triple("read", R.drawable.ic_book, "#9C27B0"),
+                Triple("learn", R.drawable.ic_learn, "#673AB7"),
+                Triple("journal", R.drawable.ic_journal, "#FF5722")
+            )
         )
 
-        icons.forEach { (iconName, iconRes) ->
+        // Get icons for selected category, fallback to custom if category not found
+        val icons = iconSets[selectedHabitCategory] ?: iconSets["custom"] ?: listOf(
+            Triple("default", R.drawable.ic_logo, "#4CAF50")
+        )
+
+        // Clear previous icons
+        llIconPalette?.removeAllViews()
+
+        icons.forEach { (iconName, iconRes, defaultColor) ->
             val iconView = ImageView(this).apply {
-                layoutParams = LinearLayout.LayoutParams(48.dpToPx(), 48.dpToPx()).apply {
-                    marginEnd = 8
+                layoutParams = LinearLayout.LayoutParams(56.dpToPx(), 56.dpToPx()).apply {
+                    marginEnd = 12
                 }
                 setImageResource(iconRes)
-                setColorFilter(Color.parseColor(selectedColorCode))
+
+                // Set color based on icon
+                try {
+                    setColorFilter(Color.parseColor(defaultColor))
+                } catch (e: Exception) {
+                    setColorFilter(ContextCompat.getColor(this@AddHabitActivity, R.color.primary_color))
+                }
+
                 tag = iconName
+
+                // Set selected state
                 background = if (iconName == selectedIconName) {
                     ContextCompat.getDrawable(this@AddHabitActivity, R.drawable.icon_selected_background)
                 } else {
-                    null
+                    ContextCompat.getDrawable(this@AddHabitActivity, R.drawable.icon_unselected_background)
                 }
 
                 setOnClickListener {
                     selectedIconName = iconName
+                    // Also update color to match icon's default color
+                    selectedColorCode = defaultColor
+                    // Refresh both palettes
                     setupIconPalette(dialogView)
+                    setupColorPalette(dialogView)
                 }
             }
 
@@ -889,7 +1069,8 @@ class AddHabitActivity : AppCompatActivity() {
                 val jsonObject = JSONObject().apply {
                     put("user_id", userId)
                     put("custom_habit_id", customHabitId)
-                    put("is_active", 0)
+                    put("is_active", 0)  // This triggers delete in the fixed PHP
+                    // NO TITLE FIELD NEEDED FOR DELETE
                 }
 
                 val mediaType = "application/json; charset=utf-8".toMediaType()
@@ -909,21 +1090,41 @@ class AddHabitActivity : AppCompatActivity() {
                     .build()
 
                 val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                Log.d("DeleteCustom", "Response: $responseBody")
 
                 withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        showToast("Custom habit deleted!")
-                        loadPredefinedHabits()
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            val success = jsonResponse.getBoolean("success")
+
+                            if (success) {
+                                showToast("Custom habit deleted!")
+                                loadPredefinedHabits()
+                            } else {
+                                val message = jsonResponse.getString("message")
+                                showToast("Error: $message")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("DeleteCustom", "JSON error: ${e.message}")
+                            showToast("Failed to delete habit")
+                        }
+                    } else {
+                        showToast("Failed to connect to server: ${response.code}")
                     }
                 }
 
             } catch (e: Exception) {
+                Log.e("DeleteCustom", "Network error: ${e.message}")
                 withContext(Dispatchers.Main) {
                     showToast("Network error: ${e.message}")
                 }
             }
         }
     }
+
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

@@ -28,6 +28,8 @@ object ApiConfig {
     val GET_USER_HABITS_URL = "${BASE_URL}habits/get_habits.php"
     val UPDATE_HABIT_STATUS_URL = "${BASE_URL}habits/update_status.php"
     val SAVE_CUSTOM_HABIT_URL = "${BASE_URL}habits/save_custom.php"
+    val ADD_CUSTOM_TO_HABITS_URL = "${BASE_URL}habits/add_custom_to_habits.php" // ADD THIS LINE
+
 
 
 
