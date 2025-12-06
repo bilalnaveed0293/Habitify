@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 05, 2025 at 11:50 PM
+-- Generation Time: Dec 06, 2025 at 07:40 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,7 +49,8 @@ CREATE TABLE `custom_habits` (
 INSERT INTO `custom_habits` (`id`, `user_id`, `title`, `description`, `category`, `icon_name`, `color_code`, `frequency`, `reminder_time`, `reminder_enabled`, `created_at`, `is_active`) VALUES
 (1, 1, 'Read 100 Pages', 'Read a book for personal growth', 'learning', 'read', '#4CAF50', 'daily', '06:30:00', 1, '2025-12-05 22:24:33', 1),
 (2, 1, 'Crashout gng', 'u deserve it', 'mindfulness', 'gratitude', '#F44336', 'daily', '09:00:00', 1, '2025-12-05 22:48:24', 1),
-(3, 1, 'Stuff', 'Haha', 'custom', 'water', '#4CAF50', 'daily', '09:00:00', 1, '2025-12-05 22:49:10', 1);
+(5, 1, 'Write a Positive Note', 'Leave some positivity for your future self to read', 'custom', 'journal', '#4CAF50', 'daily', '16:30:00', 1, '2025-12-06 14:16:05', 1),
+(7, 1, 'Do your Assignments', '', 'learning', 'learn', '#009688', 'weekly', '18:30:00', 1, '2025-12-06 16:27:58', 1);
 
 -- --------------------------------------------------------
 
@@ -85,12 +86,12 @@ CREATE TABLE `habits` (
 --
 
 INSERT INTO `habits` (`id`, `user_id`, `title`, `description`, `frequency`, `custom_frequency_days`, `start_date`, `end_date`, `color_code`, `icon_name`, `current_streak`, `longest_streak`, `status`, `is_active`, `reminder_time`, `reminder_enabled`, `created_at`, `updated_at`, `local_id`, `sync_status`) VALUES
-(13, 1, 'Drink 8 Glasses of Water', 'Stay hydrated throughout the day', 'daily', 1, '2025-12-06', NULL, '#2196F3', 'water', 0, 1, 'failed', 1, '09:00:00', 1, '2025-12-05 21:41:17', '2025-12-05 21:52:31', NULL, 'synced'),
-(15, 1, 'Early to Bed', 'Go to bed before 11 PM', 'daily', 1, '2025-12-05', NULL, '#3F51B5', 'sleep', 1, 2, 'todo', 1, '09:00:00', 1, '2025-12-05 21:59:40', '2025-12-05 21:59:57', NULL, 'synced'),
-(16, 1, 'Practice Gratitude', 'Write down 3 things you are grateful for', 'daily', 1, '2025-12-05', NULL, '#FFC107', 'gratitude', 0, 0, 'todo', 1, '09:00:00', 1, '2025-12-05 22:05:24', '2025-12-05 22:05:24', NULL, 'synced'),
-(17, 1, 'Morning Meditation', 'Start your day with 10 minutes of meditation', 'daily', 1, '2025-12-05', NULL, '#4CAF50', 'meditation', 0, 0, 'todo', 1, '09:00:00', 1, '2025-12-05 22:22:25', '2025-12-05 22:22:25', NULL, 'synced'),
-(18, 1, 'Morning Meditation', 'Start your day with 10 minutes of meditation', 'daily', 1, '2025-12-05', NULL, '#4CAF50', 'meditation', 0, 0, 'todo', 1, '09:00:00', 1, '2025-12-05 22:48:40', '2025-12-05 22:48:40', NULL, 'synced'),
-(19, 1, 'Stuff', 'Haha', 'daily', 1, '2025-12-05', NULL, '#4CAF50', 'water', 0, 0, 'todo', 1, '09:00:00', 1, '2025-12-05 22:49:10', '2025-12-05 22:49:10', NULL, 'synced');
+(15, 1, 'Early to Bed', 'Go to bed before 11 PM', 'daily', 1, '2025-12-05', NULL, '#3F51B5', 'sleep', 0, 11, 'todo', 1, '09:00:00', 1, '2025-12-05 21:59:40', '2025-12-06 18:35:15', NULL, 'synced'),
+(22, 1, 'Morning Meditation', 'Start your day with 10 minutes of meditation', 'daily', 1, '2025-12-06', NULL, '#4CAF50', 'meditation', 0, 3, 'todo', 1, '09:00:00', 1, '2025-12-06 13:56:29', '2025-12-06 18:35:15', NULL, 'synced'),
+(23, 1, 'Read 100 Pages', 'Read a book for personal growth', 'daily', 1, '2025-12-06', NULL, '#4CAF50', 'read', 4, 4, 'todo', 1, '06:30:00', 1, '2025-12-06 14:06:19', '2025-12-06 18:35:15', NULL, 'synced'),
+(24, 1, 'Crashout gng', 'u deserve it', 'daily', 1, '2025-12-06', NULL, '#F44336', 'gratitude', 4, 5, 'todo', 1, '09:00:00', 1, '2025-12-06 14:06:27', '2025-12-06 18:35:15', NULL, 'synced'),
+(25, 1, 'Write a Positive Note', 'Leave some positivity for your future self to read', 'daily', 1, '2025-12-06', NULL, '#4CAF50', 'journal', 4, 4, 'todo', 1, '16:30:00', 1, '2025-12-06 14:16:28', '2025-12-06 18:35:15', NULL, 'synced'),
+(28, 1, 'Drink 8 Glasses of Water', 'Stay hydrated throughout the day', 'daily', 1, '2025-12-06', NULL, '#2196F3', 'water', 4, 4, 'todo', 1, '09:00:00', 1, '2025-12-06 17:59:16', '2025-12-06 18:35:15', NULL, 'synced');
 
 -- --------------------------------------------------------
 
@@ -114,13 +115,13 @@ CREATE TABLE `habit_logs` (
 --
 
 INSERT INTO `habit_logs` (`id`, `habit_id`, `user_id`, `log_date`, `status`, `completed_at`, `created_at`, `updated_at`) VALUES
-(13, 13, 1, '2025-12-06', 'todo', NULL, '2025-12-05 21:41:17', '2025-12-05 21:41:17'),
-(14, 13, 1, '2025-12-05', 'failed', '2025-12-05 21:52:31', '2025-12-05 21:41:25', '2025-12-05 21:52:31'),
 (16, 15, 1, '2025-12-05', 'completed', '2025-12-05 21:59:47', '2025-12-05 21:59:40', '2025-12-05 21:59:47'),
-(17, 16, 1, '2025-12-05', 'todo', NULL, '2025-12-05 22:05:24', '2025-12-05 22:05:24'),
-(18, 17, 1, '2025-12-05', 'todo', NULL, '2025-12-05 22:22:25', '2025-12-05 22:22:25'),
-(19, 18, 1, '2025-12-05', 'todo', NULL, '2025-12-05 22:48:40', '2025-12-05 22:48:40'),
-(20, 19, 1, '2025-12-05', 'todo', NULL, '2025-12-05 22:49:10', '2025-12-05 22:49:10');
+(29, 15, 1, '2025-12-06', 'completed', '2025-12-06 18:34:44', '2025-12-06 13:21:49', '2025-12-06 18:34:44'),
+(34, 22, 1, '2025-12-06', 'completed', '2025-12-06 18:34:34', '2025-12-06 13:56:29', '2025-12-06 18:34:34'),
+(35, 23, 1, '2025-12-06', 'completed', '2025-12-06 18:35:12', '2025-12-06 14:06:19', '2025-12-06 18:35:12'),
+(36, 24, 1, '2025-12-06', 'completed', '2025-12-06 18:35:11', '2025-12-06 14:06:27', '2025-12-06 18:35:11'),
+(38, 25, 1, '2025-12-06', 'completed', '2025-12-06 18:35:10', '2025-12-06 14:16:28', '2025-12-06 18:35:10'),
+(65, 28, 1, '2025-12-06', 'completed', '2025-12-06 18:35:06', '2025-12-06 17:59:16', '2025-12-06 18:35:06');
 
 -- --------------------------------------------------------
 
@@ -271,7 +272,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `phone`, `profile_picture`, `theme`, `created_at`, `updated_at`, `last_sync`, `is_active`) VALUES
-(1, 'Ayaan Mughal', 'a@m.c', '$2y$10$7RWljaKE9YqdeGJ17NhlzOljQUlMavAvbhS5QsBfxrBU4Wogw83la', '03152092828', 'uploads/profile_pictures/profile_1_1764972295_92a4b31ba4e3e538.jpg', 'system', '2025-12-02 18:04:20', '2025-12-05 22:04:55', '2025-12-05 22:04:55', 1),
+(1, 'Ayaan Mughal', 'a@m.c', '$2y$10$7RWljaKE9YqdeGJ17NhlzOljQUlMavAvbhS5QsBfxrBU4Wogw83la', '03152092828', 'uploads/profile_pictures/profile_1_1764972295_92a4b31ba4e3e538.jpg', 'system', '2025-12-02 18:04:20', '2025-12-06 18:15:27', '2025-12-06 18:15:27', 1),
 (2, 'Test User', 'a@m.b', '$2y$10$qPTOME8ZyMlBSFs8dtPWkeVMOhjg/DWgEuCCELpDb2wLiRy2M.NTm', NULL, NULL, 'system', '2025-12-02 18:08:39', '2025-12-02 18:08:39', NULL, 1),
 (3, 'Test User', 'ayaanmughal03@gmail.com', '$2y$10$AbJKESIH2xo8sWOZALryx.cLdu0PG8N1X55hLmycH.sOm2f1F8EtK', NULL, NULL, 'system', '2025-12-02 18:42:25', '2025-12-02 18:42:25', NULL, 1);
 
@@ -386,19 +387,19 @@ ALTER TABLE `user_settings`
 -- AUTO_INCREMENT for table `custom_habits`
 --
 ALTER TABLE `custom_habits`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `habits`
 --
 ALTER TABLE `habits`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `habit_logs`
 --
 ALTER TABLE `habit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT for table `notifications`
