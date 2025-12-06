@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("Mark Complete") { _, _ ->
                 updateHabitStatus(habit.id, "completed")
             }
-            .setNegativeButton("Mark Failed") { _, _ ->
+            .setNegativeButton("Skip (streak will Reset)") { _, _ ->
                 updateHabitStatus(habit.id, "failed")
             }
             .setNeutralButton("Cancel", null)
@@ -210,12 +210,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateStatisticsImmediately() {
-        // Calculate statistics from current list
-        val todoCount =
-            allHabits.count { it.todayStatus != "completed" && it.todayStatus != "failed" }
-        val completedCount = allHabits.count { it.todayStatus == "completed" }
-        val failedCount = allHabits.count { it.todayStatus == "failed" }
+        // Calculate statistics from current list - USE CATEGORY, not todayStatus
+        val todoCount = allHabits.count { it.category == "todo" }
+        val completedCount = allHabits.count { it.category == "completed" }
+        val failedCount = allHabits.count { it.category == "failed" }
         val totalCount = allHabits.size
+
+        Log.d(TAG, "Stats Update - Todo: $todoCount, Completed: $completedCount, Failed: $failedCount, Total: $totalCount")
+        Log.d(TAG, "All habits categories: ${allHabits.map { "${it.title}: ${it.category}" }}")
 
         // Update UI
         tvStatsTodo.text = todoCount.toString()
@@ -360,24 +362,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Add this new function to parse habit from JSON with category
     private fun parseHabitFromJson(json: JSONObject, category: String? = null): Habit {
         return try {
-            // Try to get today_status first, fall back to status if not found
-            val todayStatus = if (json.has("today_status")) {
-                json.getString("today_status")
-            } else if (json.has("status")) {
-                json.getString("status")
-            } else {
-                "todo"
-            }
-
-            // Determine category based on today_status
-            val finalCategory = category ?: when (todayStatus.toLowerCase()) {
-                "completed" -> "completed"
-                "failed" -> "failed"
+            // Get habit status from habits table (MOST IMPORTANT)
+            val habitStatus = when {
+                json.has("status") && !json.isNull("status") ->
+                    json.getString("status").toLowerCase()
                 else -> "todo"
             }
+
+            // Get today's completion status from habit_logs
+            val todayStatus = when {
+                json.has("today_status") && !json.isNull("today_status") ->
+                    json.getString("today_status").toLowerCase()
+                else -> "todo"
+            }
+
+            // CRITICAL: Category comes from habits.status
+            val finalCategory = habitStatus // Use the actual habits.status
+
+            // For debugging
+            Log.d(TAG, "Habit: ${json.getString("title")} - habitStatus: $habitStatus, todayStatus: $todayStatus, category: $finalCategory")
 
             Habit(
                 id = json.getInt("id"),
@@ -389,17 +394,17 @@ class MainActivity : AppCompatActivity() {
                 currentStreak = json.optInt("current_streak", 0),
                 longestStreak = json.optInt("longest_streak", 0),
                 todayStatus = todayStatus,
-                category = finalCategory,
+                category = finalCategory, // This is now habits.status
                 createdAt = json.optString("created_at", ""),
                 createdAtFormatted = json.optString("created_at_formatted", ""),
                 todayCompletedAt = json.optString("today_completed_at", null)
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Error parsing habit JSON: ${e.message}")
-            // Return a default habit to prevent crash
+            Log.e(TAG, "Parse error: ${e.message}")
+            // Default to todo
             Habit(
-                id = json.optInt("id", 0),
-                title = json.optString("title", "Unknown Habit"),
+                id = 0,
+                title = "Error",
                 description = null,
                 frequency = "daily",
                 colorCode = "#4CAF50",
@@ -407,13 +412,25 @@ class MainActivity : AppCompatActivity() {
                 currentStreak = 0,
                 longestStreak = 0,
                 todayStatus = "todo",
-                category = "todo",
+                category = "todo", // Default to todo
                 createdAt = "",
                 createdAtFormatted = "",
                 todayCompletedAt = null
             )
         }
     }
+    private fun forceRefreshHabits() {
+        // Clear current list to trigger empty state
+        allHabits = emptyList()
+        filterHabitsByCategory(currentCategory)
+
+        // Show loading indicator
+        showToast("Refreshing habits...")
+
+        // Force reload from server
+        loadUserHabits()
+    }
+
 
 
     private fun loadUserHabits() {
@@ -421,16 +438,6 @@ class MainActivity : AppCompatActivity() {
             try {
                 val userId = sessionManager.getUserId()
 
-                // Create request body
-                val jsonObject = JSONObject().apply {
-                    put("user_id", userId)
-                }
-
-                Log.d(TAG, "Loading habits for user: $userId")
-                Log.d(TAG, "API URL: $GET_USER_HABITS_URL")
-                Log.d(TAG, "Request Body: ${jsonObject.toString()}")
-
-                // Make API call using GET method with query parameter
                 val encodedUserId = java.net.URLEncoder.encode(userId.toString(), "UTF-8")
                 val url = "$GET_USER_HABITS_URL?user_id=$encodedUserId"
 
@@ -449,6 +456,9 @@ class MainActivity : AppCompatActivity() {
                 val response = client.newCall(request).execute()
                 val responseBody = response.body?.string()
 
+                // ADD THIS LOGGING:
+                Log.d(TAG, "API Response Code: ${response.code}")
+                Log.d(TAG, "API Response Body: $responseBody")
 
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful && responseBody != null) {
@@ -495,19 +505,7 @@ class MainActivity : AppCompatActivity() {
 
                                 allHabits = habitsList
 
-                                tvStatsTodo.text = categoryCounts.getInt("todo").toString()
-                                tvStatsCompleted.text =
-                                    categoryCounts.getInt("completed").toString()
-                                tvStatsFailed.text = categoryCounts.getInt("failed").toString()
-
-                                // ADD PROGRESS BAR UPDATE:
-                                val total = allHabits.size
-                                val completed = categoryCounts.getInt("completed")
-                                if (total > 0) {
-                                    val progress = (completed * 100) / total
-                                    progressStats.progress = progress
-                                    tvProgressText.text = "$progress% Completed"
-                                }
+                                updateStatisticsImmediately()
 
                                 // Filter by current category
                                 filterHabitsByCategory(currentCategory)
@@ -650,11 +648,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Refresh user data and habits when returning to MainActivity
+        // Force reload from server when app comes to foreground
         if (sessionManager.isLoggedIn()) {
-            refreshUserProfile() // Refresh profile first
-            setupUserData() // Then update UI
-            loadUserHabits() // Then load habits
+            refreshUserProfile()
+            setupUserData()
+
+            // Clear cache and reload
+            allHabits = emptyList()
+            loadUserHabits()
         }
     }
 
@@ -744,7 +745,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showHabitOptions(habit: Habit) {
-        val options = arrayOf("Mark Complete", "Mark Failed", "Delete Habit", "Cancel")
+        val options = arrayOf("Mark Complete", "Skip (Streak will be Reset)", "Delete Habit", "Cancel")
 
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(habit.title)

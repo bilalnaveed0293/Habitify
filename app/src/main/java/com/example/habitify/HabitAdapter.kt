@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -38,17 +40,15 @@ class HabitAdapter(
             // Set creation date
             tvCreatedDate.text = "Started ${habit.getFormattedDate()}"
 
-            // Set status icon and text
-            val statusIcon = when (habit.todayStatus.toLowerCase()) {
-                "done", "completed" -> R.drawable.ic_check_circle
+            val statusIcon = when (habit.category.toLowerCase()) {  // Change from todayStatus to category
+                "completed" -> R.drawable.ic_check_circle
                 "failed" -> R.drawable.ic_cancel
-                "skipped" -> R.drawable.ic_pause_circle
-                else -> R.drawable.ic_radio_button_unchecked
+                else -> R.drawable.ic_radio_button_unchecked  // Default for todo
             }
 
             ivStatusIcon.setImageResource(statusIcon)
 
-            val statusText = when (habit.category) {
+            val statusText = when (habit.category) {  // Already using category, this is correct
                 "completed" -> "Completed"
                 "failed" -> "Failed"
                 else -> "To Do"
@@ -56,8 +56,12 @@ class HabitAdapter(
 
             tvStatusText.text = statusText
 
-            // Set status color
-            val statusColor = ContextCompat.getColor(itemView.context, habit.getStatusColor())
+            // Set status color - also update this to use category
+            val statusColor = when (habit.category) {
+                "completed" -> ContextCompat.getColor(itemView.context, R.color.habit_completed)
+                "failed" -> ContextCompat.getColor(itemView.context, R.color.habit_failed)
+                else -> ContextCompat.getColor(itemView.context, R.color.habit_todo)
+            }
             tvStatusText.setTextColor(statusColor)
 
             // Set habit icon - UPDATED TO USE iconName
@@ -86,6 +90,15 @@ class HabitAdapter(
                 // Only allow toggling for "To Do" habits
                 if (habit.category == "todo") {
                     onCompleteClick(habit)
+                }
+            }
+            ivStatusIcon.setOnClickListener {
+                // Only allow toggling for "todo" habits (not completed or failed)
+                if (habit.category == "todo") {
+                    onCompleteClick(habit)
+                } else {
+                    // If already completed or failed, show message
+
                 }
             }
 

@@ -1,8 +1,9 @@
 <?php
-// habits/update_status.php - Updated with streak calculation
+// habits/update_status.php - COMPLETELY REWRITTEN for proper status handling
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -31,56 +32,94 @@ try {
     $status = $data['status']; // 'completed' or 'failed'
     $today = date('Y-m-d');
     
-    $conn->beginTransaction();
-    
-    // 1. Update today's habit_log
-    $sql1 = "UPDATE habit_logs 
-             SET status = ?, completed_at = NOW()
-             WHERE habit_id = ? 
-             AND user_id = ? 
-             AND log_date = ?";
-    
-    $stmt1 = $conn->prepare($sql1);
-    $stmt1->execute([$status, $habit_id, $user_id, $today]);
-    
-    // 2. Update habit status and calculate streaks
-    if ($status === 'completed') {
-        // Increase streak for completed habits
-        $sql2 = "UPDATE habits 
-                 SET status = ?,
-                     current_streak = current_streak + 1,
-                     longest_streak = GREATEST(longest_streak, current_streak + 1),
-                     updated_at = NOW()
-                 WHERE id = ? AND user_id = ?";
-    } else {
-        // Reset streak for failed habits
-        $sql2 = "UPDATE habits 
-                 SET status = ?,
-                     current_streak = 0,
-                     updated_at = NOW()
-                 WHERE id = ? AND user_id = ?";
+    // Validate status
+    if (!in_array($status, ['completed', 'failed'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid status. Must be "completed" or "failed"']);
+        exit();
     }
     
-    $stmt2 = $conn->prepare($sql2);
-    $stmt2->execute([$status, $habit_id, $user_id]);
+    $conn->beginTransaction();
+    
+    // 1. Check if habit belongs to user
+    $checkSql = "SELECT id, current_streak, longest_streak FROM habits 
+                WHERE id = ? AND user_id = ? AND status != 'archived'";
+    $checkStmt = $conn->prepare($checkSql);
+    $checkStmt->execute([$habit_id, $user_id]);
+    
+    if ($checkStmt->rowCount() === 0) {
+        $conn->rollBack();
+        echo json_encode(['success' => false, 'message' => 'Habit not found or archived']);
+        exit();
+    }
+    
+    $habit = $checkStmt->fetch(PDO::FETCH_ASSOC);
+    $current_streak = (int)$habit['current_streak'];
+    $longest_streak = (int)$habit['longest_streak'];
+    
+    // 2. Update or insert today's habit_log
+    $logSql = "INSERT INTO habit_logs (habit_id, user_id, log_date, status, completed_at, created_at, updated_at)
+              VALUES (?, ?, ?, ?, NOW(), NOW(), NOW())
+              ON DUPLICATE KEY UPDATE 
+              status = VALUES(status),
+              completed_at = NOW(),
+              updated_at = NOW()";
+    
+    $logStmt = $conn->prepare($logSql);
+    $logStmt->execute([$habit_id, $user_id, $today, $status]);
+    
+    // 3. Update habit table with proper status and streak calculation
+    if ($status === 'completed') {
+        // Increment streak for completed habits
+        $new_streak = $current_streak + 1;
+        $new_longest_streak = max($longest_streak, $new_streak);
+        
+        $habitUpdateSql = "UPDATE habits 
+                          SET status = 'completed',
+                              current_streak = ?,
+                              longest_streak = ?,
+                              updated_at = NOW()
+                          WHERE id = ? AND user_id = ?";
+        
+        $habitStmt = $conn->prepare($habitUpdateSql);
+        $habitStmt->execute([$new_streak, $new_longest_streak, $habit_id, $user_id]);
+        
+    } else if ($status === 'failed') {
+        // Reset streak for failed habits
+        $habitUpdateSql = "UPDATE habits 
+                          SET status = 'failed',
+                              current_streak = 0,
+                              updated_at = NOW()
+                          WHERE id = ? AND user_id = ?";
+        
+        $habitStmt = $conn->prepare($habitUpdateSql);
+        $habitStmt->execute([$habit_id, $user_id]);
+    }
+    
+    // 4. Get updated habit with today's status
+    $getUpdatedSql = "SELECT 
+                        h.*,
+                        hl.status as today_status,
+                        hl.completed_at as today_completed_at,
+                        DATE_FORMAT(h.created_at, '%b %d, %Y') as created_at_formatted
+                     FROM habits h
+                     LEFT JOIN habit_logs hl ON h.id = hl.habit_id 
+                         AND hl.user_id = h.user_id 
+                         AND hl.log_date = ?
+                     WHERE h.id = ? AND h.user_id = ?";
+    
+    $getUpdatedStmt = $conn->prepare($getUpdatedSql);
+    $getUpdatedStmt->execute([$today, $habit_id, $user_id]);
+    $updated_habit = $getUpdatedStmt->fetch(PDO::FETCH_ASSOC);
     
     $conn->commit();
-    
-    // Get updated habit info
-    $sql3 = "SELECT current_streak, longest_streak FROM habits WHERE id = ?";
-    $stmt3 = $conn->prepare($sql3);
-    $stmt3->execute([$habit_id]);
-    $habit_info = $stmt3->fetch(PDO::FETCH_ASSOC);
     
     echo json_encode([
         'success' => true,
         'message' => "Habit marked as $status",
         'data' => [
-            'habit_id' => $habit_id,
-            'status' => $status,
-            'current_streak' => $habit_info['current_streak'],
-            'longest_streak' => $habit_info['longest_streak'],
-            'updated_at' => $today
+            'habit' => $updated_habit,
+            'updated_status' => $status,
+            'today' => $today
         ]
     ]);
     
@@ -88,6 +127,7 @@ try {
     if (isset($conn)) {
         $conn->rollBack();
     }
+    error_log("Update Status Error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
 ?>

@@ -37,22 +37,6 @@ data class Habit(
         }
     }
 
-    fun getStatusIcon(): Int {
-        return when (todayStatus.toLowerCase()) {
-            "done", "completed" -> R.drawable.ic_check_circle
-            "failed" -> R.drawable.ic_cancel
-            "skipped" -> R.drawable.ic_pause_circle
-            else -> R.drawable.ic_radio_button_unchecked
-        }
-    }
-
-    fun getStatusColor(): Int {
-        return when (category) {
-            "completed" -> R.color.habit_completed
-            "failed" -> R.color.habit_failed
-            else -> R.color.habit_todo
-        }
-    }
 
     fun getFormattedDate(): String {
         return try {
@@ -62,6 +46,21 @@ data class Habit(
             outputFormat.format(date ?: Date())
         } catch (e: Exception) {
             createdAtFormatted
+        }
+    }
+    fun getStatusColor(): Int {
+        return when (category) {  // This is already correct
+            "completed" -> R.color.habit_completed
+            "failed" -> R.color.habit_failed
+            else -> R.color.habit_todo
+        }
+    }
+
+    fun getStatusIcon(): Int {
+        return when (category) {  // Change from todayStatus to category
+            "completed" -> R.drawable.ic_check_circle
+            "failed" -> R.drawable.ic_cancel
+            else -> R.drawable.ic_radio_button_unchecked
         }
     }
 }
