@@ -38,6 +38,10 @@ class SettingsActivity : AppCompatActivity() {
     private val PERMISSION_REQUEST_CODE = 101
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        sessionManager = SessionManager(this)
+        val savedTheme = sessionManager.getTheme()
+        ThemeHelper.applyTheme(savedTheme)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
@@ -124,10 +128,41 @@ class SettingsActivity : AppCompatActivity() {
             showLogoutConfirmationDialog()
         }
 
-        // Themes
         cardThemes.setOnClickListener {
-            showInDevelopmentMessage("Theme Selection")
+            showThemeSelectionDialog()
         }
+
+    }
+    private fun showThemeSelectionDialog() {
+        val themes = arrayOf("Follow System", "Light", "Dark")
+        val currentTheme = sessionManager.getTheme()
+        val currentIndex = when (currentTheme) {
+            ThemeHelper.THEME_SYSTEM -> 0
+            ThemeHelper.THEME_LIGHT -> 1
+            ThemeHelper.THEME_DARK -> 2
+            else -> 0
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Select Theme")
+            .setSingleChoiceItems(themes, currentIndex) { dialog, which ->
+                val selectedTheme = when (which) {
+                    0 -> ThemeHelper.THEME_SYSTEM
+                    1 -> ThemeHelper.THEME_LIGHT
+                    2 -> ThemeHelper.THEME_DARK
+                    else -> ThemeHelper.THEME_SYSTEM
+                }
+
+                sessionManager.setTheme(selectedTheme)
+                ThemeHelper.applyTheme(selectedTheme)
+
+                dialog.dismiss()
+
+                // Restart activity to apply theme changes
+                recreate()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupWindowInsets() {

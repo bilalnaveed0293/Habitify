@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom attributes for your theme -->
+    <attr name="chipBackground" format="color|reference" />
+    <attr name="dividerColor" format="color|reference" />
+
+    <!-- You can add more custom attributes if needed -->
+    <attr name="cardBackground" format="color|reference" />
+    <attr name="textColorPrimaryInverse" format="color|reference" />
+</resources>

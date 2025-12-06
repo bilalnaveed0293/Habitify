@@ -56,7 +56,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         setupWindowInsets()
 
         // Set test data for development (remove in production)
-        setTestData()
+       // setTestData()
     }
 
     private fun initializeViews() {

@@ -52,7 +52,7 @@ class SignUpActivity : AppCompatActivity() {
         Log.d(TAG, "Register URL: ${ApiConfig.REGISTER_URL}")
 
         // Set test data for development (remove in production)
-        setTestData()
+        //setTestData()
     }
 
     private fun initializeViews() {

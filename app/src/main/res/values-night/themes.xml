@@ -1,7 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Habitify" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <!-- Dark theme -->
+    <style name="Theme.Habitify" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/login_button_purple</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Secondary colors -->
+        <item name="colorSecondary">@color/accent_color</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/home_background</item>
+        <item name="colorSurface">@color/home_card_background</item>
+        <item name="colorOnSurface">@color/home_text_primary</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/background_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/background_dark</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/home_text_primary</item>
+        <item name="android:textColorSecondary">@color/home_text_secondary</item>
+
     </style>
 </resources>

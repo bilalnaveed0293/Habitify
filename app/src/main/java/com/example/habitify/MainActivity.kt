@@ -26,6 +26,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 import android.widget.ProgressBar
+import com.example.habitify.ThemeHelper
 import com.example.habitify.SyncManager
 
 class MainActivity : AppCompatActivity() {
@@ -59,12 +60,15 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        sessionManager = SessionManager(this)
+        val savedTheme = sessionManager.getTheme()
+        ThemeHelper.applyTheme(savedTheme)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
         // Initialize SessionManager
-        sessionManager = SessionManager(this)
         syncManager = SyncManager(this)
 
         // Check if user is logged in

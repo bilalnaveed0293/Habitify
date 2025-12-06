@@ -57,6 +57,10 @@ class AddHabitActivity : AppCompatActivity() {
     private val SAVE_CUSTOM_HABIT_URL = ApiConfig.SAVE_CUSTOM_HABIT_URL
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        sessionManager = SessionManager(this)
+        val savedTheme = sessionManager.getTheme()
+        ThemeHelper.applyTheme(savedTheme)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_add_habit)

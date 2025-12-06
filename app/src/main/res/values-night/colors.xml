@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Keep gradient colors the same or slightly adjusted -->
+    <color name="splash_gradient_start">#1A0C36</color>
+    <color name="splash_gradient_end">#2A1F5D</color>
+    <color name="splash_text_primary">#A9C9FF</color>
+    <color name="splash_text_secondary">#8A9CC7</color>
+
+    <!-- Primary colors - slightly lighter for dark mode -->
+    <color name="login_button_purple">#8B6BFF</color>
+    <color name="primary_color">#5C6BC0</color>
+    <color name="primary_dark">#3949AB</color>
+    <color name="primary_light">#9FA8DA</color>
+
+    <!-- Backgrounds - Dark surfaces -->
+    <color name="home_background">#121212</color>
+    <color name="manage_account_background">#121212</color>
+    <color name="settings_background">#121212</color>
+    <color name="background_light">#1E1E1E</color>
+    <color name="surface_color">#1E1E1E</color>
+
+    <!-- Cards and surfaces - Dark gray -->
+    <color name="home_card_background">#1E1E1E</color>
+    <color name="manage_account_card_background">#1E1E1E</color>
+    <color name="search_bar_background">#1E1E1E</color>
+    <color name="list_item_card_background">#1E1E1E</color>
+    <color name="settings_list_item_bg">#1E1E1E</color>
+    <color name="chip_background">#2D2D2D</color>
+    <color name="chip_unselected_background">#2D2D2D</color>
+
+    <!-- Text colors - Light text on dark backgrounds -->
+    <color name="login_text_primary">#E0E0E0</color>
+
+    <color name="login_text_secondary">#A0A0A0</color>
+    <color name="home_text_primary">#E0E0E0</color>
+    <color name="home_text_secondary">#A0A0A0</color>
+    <color name="manage_account_text_primary">#E0E0E0</color>
+    <color name="manage_account_text_secondary">#A0A0A0</color>
+    <color name="primary_text">#E0E0E0</color>
+    <color name="secondary_text">#A0A0A0</color>
+    <color name="tertiary_text">#757575</color>
+
+    <!-- Hint and disabled text -->
+    <color name="login_hint_text">#757575</color>
+    <color name="manage_account_hint">#757575</color>
+
+    <!-- Borders and dividers - Darker borders -->
+    <color name="login_edittext_border">#2D2D2D</color>
+    <color name="chip_unselected_border">#2D2D2D</color>
+    <color name="settings_list_item_border">#2D2D2D</color>
+    <color name="manage_account_divider">#2D2D2D</color>
+    <color name="divider_color">#2D2D2D</color>
+
+    <!-- Bottom navigation -->
+    <color name="home_bottom_nav_background">#1E1E1E</color>
+    <color name="home_bottom_nav_selected">#8B6BFF</color>
+    <color name="home_bottom_nav_unselected">#757575</color>
+
+    <!-- Banner colors -->
+    <color name="home_banner_purple_light">#2A1F5D</color>
+    <color name="home_banner_purple_dark">#8B6BFF</color>
+
+    <!-- Button colors -->
+    <color name="manage_account_button">#8B6BFF</color>
+    <color name="manage_account_button_background">#8B6BFF</color>
+    <color name="manage_account_button_text">#FFFFFF</color>
+
+    <!-- Icons -->
+    <color name="manage_account_icon_tint">#E0E0E0</color>
+    <color name="settings_text_secondary">#A0A0A0</color>
+
+    <!-- Chips -->
+    <color name="chip_selected_background">#8B6BFF</color>
+    <color name="chip_selected_text">#FFFFFF</color>
+    <color name="chip_unselected_text">#E0E0E0</color>
+
+    <!-- Toggles -->
+    <color name="settings_toggle_thumb">#FFFFFF</color>
+    <color name="settings_toggle_track">#8B6BFF</color>
+
+    <!-- Habit status colors (keep vibrant but adjust for dark) -->
+    <color name="habit_todo">#FFB74D</color>
+    <color name="habit_completed">#81C784</color>
+    <color name="habit_failed">#E57373</color>
+    <color name="habit_skipped">#90A4AE</color>
+
+    <!-- Accent and other colors -->
+    <color name="accent_color">#FF80AB</color>
+    <color name="error_color">#EF5350</color>
+    <color name="success_color">#66BB6A</color>
+    <color name="warning_color">#FFA726</color>
+    <color name="info_color">#42A5F5</color>
+    <!-- Keep as is, but ensure white/black are defined -->
+    <color name="white">#121212</color> <!-- This is actually dark background -->
+    <color name="black">#FFFFFF</color> <!-- This is actually light text -->
+
+    <!-- Consider renaming for clarity -->
+    <color name="background_dark">#121212</color>
+</resources>

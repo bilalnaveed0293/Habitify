@@ -60,7 +60,7 @@ class PredefinedHabitAdapter(
             // For custom habits
             if (habit.isCustom) {
                 tvSuggestedCount.text = "Your Template"
-                tvSuggestedCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.primary_color))
+                tvSuggestedCount.setTextColor(ContextCompat.getColor(itemView.context, R.color.tertiary_text))
 
                 // Show custom badge
                 tvCustomBadge.visibility = View.VISIBLE

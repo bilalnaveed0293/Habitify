@@ -17,6 +17,7 @@ class SessionManager(context: Context) {
         private const val KEY_USER_TOKEN = "userToken"
         private const val KEY_USER_THEME = "userTheme"
         private const val KEY_USER_PHONE = "userPhone"
+
         private const val KEY_PROFILE_PICTURE = "profilePicture" // ADD THIS
         private const val KEY_PROFILE_PICTURE_URL = "profilePictureUrl" // ADD THIS
     }
@@ -139,9 +140,14 @@ class SessionManager(context: Context) {
 
     // Get theme
     fun getTheme(): String {
-        return sharedPreferences.getString(KEY_USER_THEME, "system") ?: "system"
+        return sharedPreferences.getString(KEY_USER_THEME, ThemeHelper.THEME_SYSTEM)
+            ?: ThemeHelper.THEME_SYSTEM
     }
 
+    fun setTheme(theme: String) {
+        editor.putString(KEY_USER_THEME, theme)
+        editor.apply()
+    }
     fun updateUserPhone(phone: String) {
         editor.putString(KEY_USER_PHONE, phone)
         editor.apply()

@@ -55,7 +55,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="12dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:backgroundTint="@color/chip_background">
 
             <ImageView
                 android:layout_width="24dp"

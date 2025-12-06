@@ -69,14 +69,14 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Set test credentials (for development only - remove in production)
-        setTestCredentials()
+        //setTestCredentials()
     }
 
     private fun setTestCredentials() {
         // For testing with your PHP backend
         // These should match the test data in your register.php
-        etEmail.setText("test@example.com")
-        etPassword.setText("password123")
+        etEmail.setText("a@m.c")
+        etPassword.setText("ayaan")
     }
 
     private fun setupClickListeners() {

@@ -94,6 +94,7 @@
                     android:id="@+id/et_code_1"
                     android:layout_width="48dp"
                     android:layout_height="60dp"
+
                     android:background="@drawable/shape_code_input"
                     android:gravity="center"
                     android:inputType="number"
